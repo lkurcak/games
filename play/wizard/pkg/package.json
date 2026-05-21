@@ -1,0 +1,15 @@
+{
+  "name": "wizard",
+  "type": "module",
+  "version": "0.1.1",
+  "files": [
+    "wizard_bg.wasm",
+    "wizard.js",
+    "wizard.d.ts"
+  ],
+  "main": "wizard.js",
+  "types": "wizard.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
