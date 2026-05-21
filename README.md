@@ -66,10 +66,15 @@ Install the app on this repository only:
 lkurcak/games
 ```
 
-Generate a private key for the app. In each game repository that should publish here, add these Actions secrets:
+Generate a private key for the app. In each game repository that should publish here, add this Actions repository variable:
 
 ```text
 GAMES_PUBLISHER_APP_ID
+```
+
+And this Actions repository secret:
+
+```text
 GAMES_PUBLISHER_PRIVATE_KEY
 ```
 
@@ -109,7 +114,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ secrets.GAMES_PUBLISHER_APP_ID }}
+          app-id: ${{ vars.GAMES_PUBLISHER_APP_ID }}
           private-key: ${{ secrets.GAMES_PUBLISHER_PRIVATE_KEY }}
           owner: lkurcak
           repositories: games
@@ -118,6 +123,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: lkurcak/games
+          ref: main
           path: games-hub
           token: ${{ steps.app-token.outputs.token }}
 
@@ -134,7 +140,11 @@ jobs:
           git config user.name "games-publisher[bot]"
           git config user.email "games-publisher[bot]@users.noreply.github.com"
           git add .nojekyll "play/${GAME_SLUG}"
-          git commit -m "Deploy ${GAME_SLUG} from ${GITHUB_REPOSITORY}@${GITHUB_SHA}" || exit 0
+          if git diff --cached --quiet; then
+            echo "No games hub changes to publish."
+            exit 0
+          fi
+          git commit -m "Deploy ${GAME_SLUG} from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
           git pull --rebase origin main
           git push
 ```

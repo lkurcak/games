@@ -1,3 +1,10 @@
 {
-  "games": []
+  "games": [
+    {
+      "slug": "wizard",
+      "title": "Wizard's Dungeon",
+      "description": "A Rust/WASM roguelike with keyboard, swipe, and ability controls.",
+      "url": "play/wizard/"
+    }
+  ]
 }
