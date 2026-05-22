@@ -2,37 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <title>Wizard's Dungeon</title>
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./main.js"></script>
   </head>
   <body>
-    <main class="shell">
-      <header class="hero">
-        <p class="eyebrow">Rust/WASM roguelike</p>
-        <h1>Wizard's Dungeon</h1>
-        <p class="intro">
-          Swipe the board on mobile, use WASD or arrow keys on desktop, and tap ability buttons to cast.
-        </p>
-      </header>
+    <main class="app" aria-label="Wizard's Dungeon game">
+      <section class="game-shell">
+        <div id="stats" class="stats" aria-live="polite"></div>
 
-      <section class="game-card" aria-label="Wizard's Dungeon game">
-        <div class="top-bar">
-          <div id="status" class="status">Loading WASM...</div>
-          <button id="restart-button" class="restart-button" type="button">Restart</button>
-        </div>
-
-        <div class="board-panel">
-          <canvas id="game-canvas" aria-label="Game board"></canvas>
-          <div id="game-over" class="game-over hidden" role="status" aria-live="polite">
-            <strong>Game Over</strong>
-            <span id="game-over-summary"></span>
-            <button id="game-over-restart" type="button">Restart</button>
+        <div class="board-slot">
+          <div class="board-panel">
+            <div id="status" class="status" aria-live="polite">Loading WASM...</div>
+            <canvas id="game-canvas" aria-label="Game board"></canvas>
+            <div id="game-over" class="game-over hidden" role="status" aria-live="polite">
+              <strong>Game Over</strong>
+              <span id="game-over-summary"></span>
+              <button id="game-over-restart" type="button">Restart</button>
+            </div>
           </div>
         </div>
 
-        <div id="stats" class="stats" aria-live="polite"></div>
         <div id="abilities" class="abilities" aria-label="Abilities"></div>
       </section>
     </main>

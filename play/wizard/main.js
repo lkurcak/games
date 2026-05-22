@@ -81,25 +81,38 @@ const sprites = Object.fromEntries(
 init()
   .then(() => {
     game = new WebGame();
-    statusEl.textContent = "Swipe, WASD, or arrow keys to move.";
+    statusEl.classList.add("hidden");
     render();
   })
   .catch((error) => {
+    statusEl.classList.remove("hidden");
     statusEl.textContent = "Could not load the WASM build. Run wasm-pack first.";
     console.error(error);
   });
 
-restartButton.addEventListener("click", restart);
-gameOverRestartButton.addEventListener("click", restart);
-abilitiesEl.addEventListener("click", (event) => {
+bindPress(restartButton, restart);
+bindPress(gameOverRestartButton, restart);
+
+abilitiesEl.addEventListener("pointerdown", (event) => {
   const button = event.target.closest("button[data-ability]");
-  if (!button || !game) {
+  if (!button || button.disabled || !game) {
     return;
   }
 
+  event.preventDefault();
+  flashPressed(button);
   game.useAbility(button.dataset.ability);
   render();
 });
+abilitiesEl.addEventListener("click", (event) => {
+  event.preventDefault();
+});
+
+document.addEventListener("dblclick", preventPageGesture, { passive: false });
+document.addEventListener("touchmove", preventPageGesture, { passive: false });
+for (const eventName of ["gesturestart", "gesturechange", "gestureend"]) {
+  document.addEventListener(eventName, preventPageGesture, { passive: false });
+}
 
 window.addEventListener("keydown", (event) => {
   if (!game || event.repeat) {
@@ -129,11 +142,13 @@ window.addEventListener("keydown", (event) => {
 });
 
 canvas.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
   pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
   canvas.setPointerCapture(event.pointerId);
 });
 
 canvas.addEventListener("pointerup", (event) => {
+  event.preventDefault();
   if (!game || !pointerStart || pointerStart.id !== event.pointerId) {
     pointerStart = null;
     return;
@@ -185,14 +200,14 @@ function render() {
 
 function renderStats({ stats }) {
   const items = [
-    ["Level", stats.level],
-    ["Steps", stats.steps],
+    ["Lvl", stats.level],
+    ["Step", stats.steps],
     ["HP", stats.health],
     ["MP", stats.mana],
     ["Kills", stats.kills],
     ["Gold", stats.gold],
     ["Keys", stats.keys],
-    ["Invisible", stats.stealth_steps],
+    ["Inv", stats.stealth_steps],
   ];
 
   statsEl.innerHTML = items
@@ -223,10 +238,6 @@ function renderGameOver({ game_over, stats }) {
   gameOverEl.classList.toggle("hidden", !game_over);
   if (game_over) {
     gameOverSummaryEl.textContent = `Level ${stats.level}, ${stats.kills} kills, ${stats.gold} gold`;
-    statusEl.textContent = "Game over. Press R or tap Restart.";
-  } else {
-    const facing = directionLabel(stats.last_direction);
-    statusEl.textContent = `Facing ${facing}. Abilities cast in that direction.`;
   }
 }
 
@@ -474,20 +485,32 @@ function drawBlock(x, y, size) {
   line(x + size * 0.82, y + size * 0.18, x + size * 0.18, y + size * 0.82);
 }
 
-function directionLabel(direction) {
-  if (direction.x === 0 && direction.y < 0) {
-    return "up";
+function bindPress(element, handler) {
+  if (!element) {
+    return;
   }
-  if (direction.x === 0 && direction.y > 0) {
-    return "down";
+
+  element.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    flashPressed(element);
+    handler(event);
+  });
+  element.addEventListener("click", (event) => {
+    event.preventDefault();
+  });
+}
+
+function flashPressed(element) {
+  element.classList.add("is-pressed");
+  window.setTimeout(() => {
+    element.classList.remove("is-pressed");
+  }, 120);
+}
+
+function preventPageGesture(event) {
+  if (event.cancelable) {
+    event.preventDefault();
   }
-  if (direction.x < 0 && direction.y === 0) {
-    return "left";
-  }
-  if (direction.x > 0 && direction.y === 0) {
-    return "right";
-  }
-  return "nowhere";
 }
 
 function createSprite(src) {
