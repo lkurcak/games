@@ -4,6 +4,8 @@
       "slug": "wizard",
       "title": "Wizard's Dungeon",
       "description": "A Rust/WASM roguelike with keyboard, swipe, and ability controls.",
+      "icon": "assets/icons/wizard.png",
+      "iconBackground": "#ead7ba",
       "url": "play/wizard/"
     }
   ]

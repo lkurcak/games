@@ -36,40 +36,49 @@ function renderGames(games) {
 }
 
 function createGameCard(game) {
-  const card = document.createElement("article");
+  const card = document.createElement("a");
   card.className = "game-card";
+  card.href = game.url || `play/${game.slug}/`;
 
-  const cover = document.createElement("div");
-  cover.className = "game-cover";
+  const icon = document.createElement("div");
+  icon.className = "game-icon";
+  icon.setAttribute("aria-hidden", "true");
 
-  if (game.cover) {
+  if (isHexColor(game.iconBackground)) {
+    icon.style.setProperty("--game-icon-bg", game.iconBackground.trim());
+  }
+
+  const iconSource = game.icon || game.cover;
+
+  if (iconSource) {
     const image = document.createElement("img");
-    image.src = game.cover;
+    image.src = iconSource;
     image.alt = "";
     image.loading = "lazy";
-    cover.append(image);
+    image.decoding = "async";
+    icon.append(image);
   } else {
-    cover.textContent = game.title.trim().charAt(0).toUpperCase();
+    icon.textContent = game.title.trim().charAt(0).toUpperCase();
   }
 
   const body = document.createElement("div");
   body.className = "game-body";
 
   const title = document.createElement("h3");
+  title.className = "game-title";
   title.textContent = game.title;
 
   const description = document.createElement("p");
   description.textContent = game.description || "Play this browser game.";
 
-  const link = document.createElement("a");
-  link.className = "play-link";
-  link.href = game.url || `play/${game.slug}/`;
-  link.textContent = "Play";
-
-  body.append(title, description, link);
-  card.append(cover, body);
+  body.append(title, description);
+  card.append(icon, body);
 
   return card;
+}
+
+function isHexColor(value) {
+  return typeof value === "string" && /^#[\da-f]{6}$/i.test(value.trim());
 }
 
 function createEmptyState(message) {
