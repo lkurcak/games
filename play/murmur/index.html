@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#10141f" />
+    <title>Murmur</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app" aria-labelledby="app-title">
+      <section class="hero">
+        <p class="eyebrow">Six reusable letters</p>
+        <h1 id="app-title">Murmur</h1>
+        <p class="intro">Find as many English words as you can using only the puzzle letters.</p>
+      </section>
+
+      <section class="panel game-panel" aria-label="Game board">
+        <div class="top-row">
+          <button id="progress-toggle" class="progress-pill" type="button" aria-expanded="false">
+            <span id="progress-percent">0%</span>
+            <span class="progress-caption">found</span>
+          </button>
+          <button id="new-game" class="ghost-button" type="button">New letters</button>
+        </div>
+
+        <div id="progress-details" class="progress-details" hidden></div>
+
+        <div id="current-word" class="current-word" aria-live="polite" aria-label="Current word"></div>
+
+        <div id="letter-buttons" class="letter-grid" aria-label="Available letters"></div>
+
+        <div class="controls">
+          <button id="delete-letter" class="secondary-button" type="button">Delete</button>
+          <button id="submit-word" class="primary-button" type="button">Submit</button>
+        </div>
+
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel found-panel" aria-label="Found words">
+        <div class="section-header">
+          <h2>Found Words</h2>
+          <span id="found-count">0 words</span>
+        </div>
+        <ol id="found-words" class="found-words"></ol>
+      </section>
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>

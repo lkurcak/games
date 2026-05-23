@@ -40,7 +40,7 @@ Add an entry to `games.json`:
 }
 ```
 
-Required fields are `slug` and `title`. If `url` is omitted, the launcher uses `play/<slug>/`. Put launcher icons in `assets/icons/<slug>.png` as square images. The launcher displays the full square image inside a round icon well, and `iconBackground` accepts a 6-digit hex color for that well. The launcher reads `icon` first and falls back to `cover` for older entries.
+Required fields are `slug` and `title`. If `url` is omitted, the launcher uses `play/<slug>/`. Put launcher icons in `assets/icons/<slug>.*` as square PNG or SVG images. The launcher displays the full square image inside a round icon well, and `iconBackground` accepts a 6-digit hex color for that well. The launcher reads `icon` first and falls back to `cover` for older entries.
 
 ## Enable GitHub Pages
 

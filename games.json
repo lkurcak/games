@@ -7,6 +7,14 @@
       "icon": "assets/icons/wizard.png",
       "iconBackground": "#000000",
       "url": "play/wizard/"
+    },
+    {
+      "slug": "murmur",
+      "title": "Murmur",
+      "description": "A quiet six-letter word hunt where every puzzle hides more words than it first whispers.",
+      "icon": "assets/icons/murmur.svg",
+      "iconBackground": "#10141f",
+      "url": "play/murmur/"
     }
   ]
 }
