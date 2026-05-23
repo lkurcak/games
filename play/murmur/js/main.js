@@ -8,7 +8,7 @@ import {
   startPuzzle,
 } from "./state.js";
 import { render } from "./renderer.js";
-import { describeCheckFailure } from "./utils.js";
+import { describeCheckFailure, formatWord } from "./utils.js";
 
 const state = createState();
 let wasm = null;
@@ -35,6 +35,10 @@ const actions = {
     state.activeModal = "found";
     render(state, actions);
   },
+  openInfo() {
+    state.activeModal = "info";
+    render(state, actions);
+  },
   closeModal() {
     state.activeModal = null;
     render(state, actions);
@@ -44,14 +48,8 @@ const actions = {
 document.querySelector("#submit-word").addEventListener("click", actions.submitWord);
 document.querySelector("#delete-letter").addEventListener("click", actions.deleteLetter);
 document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
+document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
-document.querySelector("#recent-words").addEventListener("click", actions.openFound);
-document.querySelector("#recent-words").addEventListener("keydown", (event) => {
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    actions.openFound();
-  }
-});
 document.querySelectorAll("[data-close-modal]").forEach((button) => {
   button.addEventListener("click", actions.closeModal);
 });
@@ -138,7 +136,7 @@ function submitCurrentWord() {
   if (result.valid) {
     markFound(state, result.word);
     refreshLetterStats();
-    state.message = `Found ${result.word}`;
+    state.message = `Found ${formatWord(result.word)}`;
     state.messageKind = "note";
   } else {
     state.message = describeCheckFailure(result.reason);

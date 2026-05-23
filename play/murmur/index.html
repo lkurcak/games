@@ -18,24 +18,32 @@
       <section class="game-panel" aria-label="Game board">
         <div class="top-row">
           <button id="progress-toggle" class="progress-button" type="button">
-            <span id="progress-percent">0%</span>
-            <span class="button-caption">found</span>
+            <span class="progress-label">
+              <span id="progress-percent">0%</span>
+              <span class="button-caption">found</span>
+            </span>
+            <span class="progress-track" aria-hidden="true">
+              <span id="progress-fill" class="progress-fill"></span>
+            </span>
           </button>
+          <button id="info-toggle" class="icon-button" type="button" aria-label="How to play">?</button>
         </div>
 
-        <p id="message" class="message" role="status" aria-live="polite"></p>
-        <div id="current-word" class="current-word" aria-live="polite" aria-label="Current word"></div>
-        <div id="letter-buttons" class="letter-grid" aria-label="Available letters"></div>
+        <div class="play-area">
+          <p id="message" class="message" role="status" aria-live="polite"></p>
+          <div id="current-word" class="current-word" aria-live="polite" aria-label="Current word"></div>
+          <div id="letter-buttons" class="letter-grid" aria-label="Available letters"></div>
 
-        <div class="controls">
-          <button id="delete-letter" class="plain-button" type="button">Delete</button>
-          <button id="submit-word" class="submit-button" type="button">Submit</button>
+          <div class="controls">
+            <button id="delete-letter" class="plain-button" type="button">Delete</button>
+            <button id="submit-word" class="submit-button" type="button">Submit</button>
+          </div>
         </div>
 
         <button id="found-toggle" class="found-summary" type="button">
           <span id="found-count">0 words</span>
+          <span id="recent-words" class="recent-words"></span>
         </button>
-        <ol id="recent-words" class="recent-words" aria-label="Recent found words" role="button" tabindex="0"></ol>
       </section>
     </main>
 
@@ -43,7 +51,7 @@
       <div class="modal-card">
         <div class="modal-header">
           <h2>Progress</h2>
-          <button class="modal-close" type="button" data-close-modal aria-label="Close progress">Close</button>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close progress">&times;</button>
         </div>
         <div id="progress-details" class="progress-details"></div>
       </div>
@@ -53,9 +61,31 @@
       <div class="modal-card">
         <div class="modal-header">
           <h2>Found Words</h2>
-          <button class="modal-close" type="button" data-close-modal aria-label="Close found words">Close</button>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close found words">&times;</button>
         </div>
         <ol id="found-words" class="found-words"></ol>
+      </div>
+    </dialog>
+
+    <dialog id="info-dialog" class="modal info-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>How To Play</h2>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close rules">&times;</button>
+        </div>
+        <div class="info-slides" aria-label="Rules">
+          <section class="info-slide" aria-label="Basic rules">
+            <h3>Find Words</h3>
+            <p>Use the six letters to make English words.</p>
+            <p>Letters can repeat. Words need at least four letters.</p>
+            <p>Tap letters, or type on a keyboard. Press Enter or Space to submit.</p>
+          </section>
+          <section class="info-slide" aria-label="Hints">
+            <h3>Hints At 50%</h3>
+            <p>After you find half the answers, each letter shows how many answers start with it.</p>
+            <p>The progress button shows totals by word length.</p>
+          </section>
+        </div>
       </div>
     </dialog>
 

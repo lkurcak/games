@@ -18,3 +18,7 @@ export function describeCheckFailure(reason) {
 export function pluralize(count, singular, plural = `${singular}s`) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
+
+export function formatWord(word) {
+  return word ? `${word[0].toUpperCase()}${word.slice(1)}` : "";
+}
