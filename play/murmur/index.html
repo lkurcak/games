@@ -6,7 +6,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#f6f3eb" />
+    <meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171719" media="(prefers-color-scheme: dark)" />
     <title>Murmur</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -20,9 +21,9 @@
             <span id="progress-percent">0%</span>
             <span class="button-caption">found</span>
           </button>
-          <button id="new-game" class="plain-button" type="button">New</button>
         </div>
 
+        <p id="message" class="message" role="status" aria-live="polite"></p>
         <div id="current-word" class="current-word" aria-live="polite" aria-label="Current word"></div>
         <div id="letter-buttons" class="letter-grid" aria-label="Available letters"></div>
 
@@ -31,11 +32,8 @@
           <button id="submit-word" class="submit-button" type="button">Submit</button>
         </div>
 
-        <p id="message" class="message" role="status" aria-live="polite"></p>
-
         <button id="found-toggle" class="found-summary" type="button">
           <span id="found-count">0 words</span>
-          <span class="button-caption">view all</span>
         </button>
         <ol id="recent-words" class="recent-words" aria-label="Recent found words" role="button" tabindex="0"></ol>
       </section>

@@ -1,17 +1,17 @@
 export function describeCheckFailure(reason) {
   switch (reason) {
     case "too-short":
-      return "Words need at least four letters.";
+      return "Too short";
     case "invalid-word":
-      return "Use plain English letters only.";
+      return "Letters only";
     case "invalid-puzzle":
-      return "This puzzle is invalid. Start a new one.";
+      return "Invalid puzzle";
     case "invalid-letters":
-      return "That word uses letters outside the puzzle.";
+      return "Wrong letters";
     case "not-in-dictionary":
-      return "That word is not in the dictionary.";
+      return "Not in the list";
     default:
-      return "That word is not valid.";
+      return "Not valid";
   }
 }
 

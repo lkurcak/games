@@ -59,7 +59,7 @@ export function getFoundByLength(state) {
   return counts;
 }
 
-export function getRecentFoundWords(state, limit = 5) {
+export function getRecentFoundWords(state, limit = 24) {
   return [...state.foundWords].slice(-limit).reverse();
 }
 

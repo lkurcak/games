@@ -27,15 +27,6 @@ const actions = {
   submitWord() {
     submitCurrentWord();
   },
-  newGame() {
-    if (!wasm) {
-      return;
-    }
-
-    startPuzzle(state, wasm.generate_puzzle());
-    refreshLetterStats();
-    render(state, actions);
-  },
   openProgress() {
     state.activeModal = "progress";
     render(state, actions);
@@ -52,7 +43,6 @@ const actions = {
 
 document.querySelector("#submit-word").addEventListener("click", actions.submitWord);
 document.querySelector("#delete-letter").addEventListener("click", actions.deleteLetter);
-document.querySelector("#new-game").addEventListener("click", actions.newGame);
 document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
 document.querySelector("#recent-words").addEventListener("click", actions.openFound);
@@ -130,15 +120,15 @@ function submitCurrentWord() {
 
   const word = state.currentWord.toLowerCase();
   if (!word) {
-    state.message = "Build a word first.";
-    state.messageKind = "bad";
+    state.message = "Type first";
+    state.messageKind = "note";
     render(state, actions);
     return;
   }
 
   if (state.foundWords.has(word)) {
-    state.message = "Already found.";
-    state.messageKind = "bad";
+    state.message = "Already found";
+    state.messageKind = "note";
     clearWord(state);
     render(state, actions);
     return;
@@ -148,11 +138,11 @@ function submitCurrentWord() {
   if (result.valid) {
     markFound(state, result.word);
     refreshLetterStats();
-    state.message = `Found ${result.word}.`;
-    state.messageKind = "good";
+    state.message = `Found ${result.word}`;
+    state.messageKind = "note";
   } else {
     state.message = describeCheckFailure(result.reason);
-    state.messageKind = "bad";
+    state.messageKind = "note";
   }
 
   render(state, actions);
