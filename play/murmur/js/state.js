@@ -5,6 +5,7 @@ export function createState() {
     foundWords: new Set(),
     letterStats: [],
     activeModal: null,
+    victoryShown: false,
     message: "Loading dictionary...",
     messageKind: "",
   };
@@ -16,6 +17,7 @@ export function startPuzzle(state, puzzle) {
   state.foundWords = new Set();
   state.letterStats = [];
   state.activeModal = null;
+  state.victoryShown = false;
   state.message = "";
   state.messageKind = "";
 }
@@ -30,6 +32,20 @@ export function addLetter(state, letter) {
 
 export function deleteLetter(state) {
   state.currentWord = state.currentWord.slice(0, -1);
+}
+
+export function shuffleLetters(state) {
+  if (!state.puzzle) {
+    return;
+  }
+
+  const letters = [...state.puzzle.letters];
+  for (let index = letters.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [letters[index], letters[swapIndex]] = [letters[swapIndex], letters[index]];
+  }
+
+  state.puzzle = { ...state.puzzle, letters: letters.join("") };
 }
 
 export function clearWord(state) {
@@ -64,7 +80,7 @@ export function getRecentFoundWords(state, limit = 24) {
 }
 
 export function getSortedFoundWords(state) {
-  return [...state.foundWords].sort((left, right) => left.length - right.length || left.localeCompare(right));
+  return [...state.foundWords].sort((left, right) => left.localeCompare(right));
 }
 
 export function isLetterDone(state, letter) {

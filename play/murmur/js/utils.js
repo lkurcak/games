@@ -22,3 +22,7 @@ export function pluralize(count, singular, plural = `${singular}s`) {
 export function formatWord(word) {
   return word ? `${word[0].toUpperCase()}${word.slice(1)}` : "";
 }
+
+export function wordUsesEveryLetter(word, letters) {
+  return [...new Set(letters)].every((letter) => word.includes(letter));
+}

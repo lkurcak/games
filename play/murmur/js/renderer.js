@@ -4,7 +4,7 @@ import {
   getRecentFoundWords,
   getSortedFoundWords,
 } from "./state.js";
-import { formatWord, pluralize } from "./utils.js";
+import { formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
 
 const elements = {
   progressDialog: document.querySelector("#progress-dialog"),
@@ -16,6 +16,7 @@ const elements = {
   message: document.querySelector("#message"),
   foundDialog: document.querySelector("#found-dialog"),
   infoDialog: document.querySelector("#info-dialog"),
+  victoryDialog: document.querySelector("#victory-dialog"),
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
@@ -30,6 +31,7 @@ export function render(state, actions) {
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
+  syncDialog(elements.victoryDialog, state.activeModal === "victory");
 }
 
 function renderProgress(state) {
@@ -81,7 +83,10 @@ function renderLetters(state, actions) {
   const progress = getProgress(state);
   const showHints = progress.percent >= 50;
   const statsByLetter = new Map(state.letterStats.map((entry) => [entry.letter, entry]));
-  const startsByLetter = new Map((state.puzzle.byStart ?? []).map((entry) => [entry.letter, entry.total]));
+  const foundByStart = getFoundByStart(state);
+  const startsByLetter = new Map(
+    (state.puzzle.byStart ?? []).map((entry) => [entry.letter, Math.max(0, entry.total - (foundByStart.get(entry.letter) ?? 0))]),
+  );
   const buttons = [...state.puzzle.letters].map((letter) => {
     const stats = statsByLetter.get(letter);
     const startCount = startsByLetter.get(letter) ?? 0;
@@ -127,13 +132,25 @@ function renderFoundWords(state) {
 
   elements.foundCount.textContent = pluralize(allWords.length, "word");
   elements.recentWords.textContent = recentWords.map(formatWord).join(", ");
-  elements.foundWords.replaceChildren(...allWords.map(createWordItem));
+  elements.foundWords.replaceChildren(...allWords.map((word) => createWordItem(word, state.puzzle?.letters ?? "")));
 }
 
-function createWordItem(word) {
+function createWordItem(word, letters) {
   const item = document.createElement("li");
   item.textContent = formatWord(word);
+  item.classList.toggle("golden-word", wordUsesEveryLetter(word, letters));
   return item;
+}
+
+function getFoundByStart(state) {
+  const counts = new Map();
+
+  for (const word of state.foundWords) {
+    const firstLetter = word[0];
+    counts.set(firstLetter, (counts.get(firstLetter) ?? 0) + 1);
+  }
+
+  return counts;
 }
 
 function syncDialog(dialog, shouldBeOpen) {

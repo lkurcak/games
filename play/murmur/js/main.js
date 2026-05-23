@@ -5,6 +5,7 @@ import {
   deleteLetter,
   isLetterDone,
   markFound,
+  shuffleLetters,
   startPuzzle,
 } from "./state.js";
 import { render } from "./renderer.js";
@@ -22,6 +23,10 @@ const actions = {
   },
   deleteLetter() {
     deleteLetter(state);
+    render(state, actions);
+  },
+  shuffleLetters() {
+    shuffleLetters(state);
     render(state, actions);
   },
   submitWord() {
@@ -47,9 +52,12 @@ const actions = {
 
 document.querySelector("#submit-word").addEventListener("click", actions.submitWord);
 document.querySelector("#delete-letter").addEventListener("click", actions.deleteLetter);
+document.querySelector("#shuffle-letters").addEventListener("click", actions.shuffleLetters);
 document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
+document.querySelector("#info-prev").addEventListener("click", () => scrollInfoSlide(-1));
+document.querySelector("#info-next").addEventListener("click", () => scrollInfoSlide(1));
 document.querySelectorAll("[data-close-modal]").forEach((button) => {
   button.addEventListener("click", actions.closeModal);
 });
@@ -127,7 +135,6 @@ function submitCurrentWord() {
   if (state.foundWords.has(word)) {
     state.message = "Already found";
     state.messageKind = "note";
-    clearWord(state);
     render(state, actions);
     return;
   }
@@ -138,6 +145,7 @@ function submitCurrentWord() {
     refreshLetterStats();
     state.message = `Found ${formatWord(result.word)}`;
     state.messageKind = "note";
+    showVictoryIfComplete();
   } else {
     state.message = describeCheckFailure(result.reason);
     state.messageKind = "note";
@@ -153,4 +161,18 @@ function refreshLetterStats() {
   }
 
   state.letterStats = wasm.get_letter_stats(state.puzzle.letters, [...state.foundWords]);
+}
+
+function showVictoryIfComplete() {
+  if (state.victoryShown || !state.puzzle || state.foundWords.size !== state.puzzle.total) {
+    return;
+  }
+
+  state.victoryShown = true;
+  state.activeModal = "victory";
+}
+
+function scrollInfoSlide(direction) {
+  const slides = document.querySelector("#info-dialog .info-slides");
+  slides.scrollBy({ left: direction * slides.clientWidth, behavior: "smooth" });
 }

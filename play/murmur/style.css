@@ -14,6 +14,7 @@
   --accent-text: #f5f1e8;
   --disabled: #b8b0a3;
   --focus: #8a6f3e;
+  --gold: #a87500;
   --placeholder: #c5baaa;
   --message: #6f675d;
   --backdrop: rgb(23 23 23 / 36%);
@@ -35,6 +36,7 @@
     --accent-text: #171719;
     --disabled: #68635d;
     --focus: #d0b36c;
+    --gold: #e4b84a;
     --placeholder: #605d58;
     --message: #b7afa4;
     --backdrop: rgb(0 0 0 / 52%);
@@ -216,7 +218,7 @@ p {
   place-items: center;
   overflow: hidden;
   background: var(--soft);
-  font-size: clamp(1.45rem, 6dvh, 3rem);
+  font-size: clamp(1.28rem, 5.4dvh, 2.65rem);
   font-weight: 850;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -227,10 +229,10 @@ p {
 }
 
 .current-word:empty::before {
-  content: "word";
+  content: "WORD";
   color: var(--placeholder);
   letter-spacing: 0;
-  text-transform: lowercase;
+  text-transform: uppercase;
 }
 
 .letter-grid {
@@ -288,7 +290,7 @@ p {
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 10px;
 }
 
@@ -369,6 +371,10 @@ p {
   gap: 16px;
 }
 
+.info-modal .modal-card {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -436,6 +442,11 @@ p {
   line-height: 1.45;
 }
 
+.golden-word {
+  color: var(--gold);
+  font-weight: 800;
+}
+
 .info-slides {
   display: grid;
   grid-auto-flow: column;
@@ -443,6 +454,11 @@ p {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.info-slides::-webkit-scrollbar {
+  display: none;
 }
 
 .info-slide {
@@ -464,6 +480,53 @@ p {
   line-height: 1.45;
 }
 
+.info-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.info-arrow {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--button);
+  color: var(--muted);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.victory-card {
+  text-align: center;
+}
+
+.victory-body {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 8px 12px 16px;
+}
+
+.trophy {
+  width: 112px;
+  height: 112px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.victory-body h3 {
+  font-size: 1.35rem;
+}
+
+.victory-body p {
+  color: var(--muted);
+}
+
 @media (max-height: 620px) {
   .game-panel {
     gap: 8px;
@@ -483,5 +546,9 @@ p {
 
   .current-word {
     min-height: 54px;
+  }
+
+  .submit-button {
+    min-width: 108px;
   }
 }
