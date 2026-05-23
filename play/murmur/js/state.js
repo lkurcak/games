@@ -3,7 +3,8 @@ export function createState() {
     puzzle: null,
     currentWord: "",
     foundWords: new Set(),
-    detailsExpanded: false,
+    letterStats: [],
+    activeModal: null,
     message: "Loading dictionary...",
     messageKind: "",
   };
@@ -13,13 +14,14 @@ export function startPuzzle(state, puzzle) {
   state.puzzle = puzzle;
   state.currentWord = "";
   state.foundWords = new Set();
-  state.detailsExpanded = false;
-  state.message = "Use the buttons or your keyboard.";
+  state.letterStats = [];
+  state.activeModal = null;
+  state.message = "";
   state.messageKind = "";
 }
 
 export function addLetter(state, letter) {
-  if (!state.puzzle || !state.puzzle.letters.includes(letter)) {
+  if (!state.puzzle || !state.puzzle.letters.includes(letter) || isLetterDone(state, letter)) {
     return;
   }
 
@@ -57,6 +59,14 @@ export function getFoundByLength(state) {
   return counts;
 }
 
+export function getRecentFoundWords(state, limit = 5) {
+  return [...state.foundWords].slice(-limit).reverse();
+}
+
 export function getSortedFoundWords(state) {
   return [...state.foundWords].sort((left, right) => left.length - right.length || left.localeCompare(right));
+}
+
+export function isLetterDone(state, letter) {
+  return state.letterStats.some((entry) => entry.letter === letter && entry.done);
 }

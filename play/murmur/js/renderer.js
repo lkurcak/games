@@ -1,14 +1,21 @@
-import { getFoundByLength, getProgress, getSortedFoundWords } from "./state.js";
+import {
+  getFoundByLength,
+  getProgress,
+  getRecentFoundWords,
+  getSortedFoundWords,
+} from "./state.js";
 import { pluralize } from "./utils.js";
 
 const elements = {
-  progressToggle: document.querySelector("#progress-toggle"),
+  progressDialog: document.querySelector("#progress-dialog"),
   progressPercent: document.querySelector("#progress-percent"),
   progressDetails: document.querySelector("#progress-details"),
   currentWord: document.querySelector("#current-word"),
   letterButtons: document.querySelector("#letter-buttons"),
   message: document.querySelector("#message"),
+  foundDialog: document.querySelector("#found-dialog"),
   foundCount: document.querySelector("#found-count"),
+  recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
 };
 
@@ -18,15 +25,15 @@ export function render(state, actions) {
   renderLetters(state, actions);
   renderMessage(state);
   renderFoundWords(state);
+  syncDialog(elements.progressDialog, state.activeModal === "progress");
+  syncDialog(elements.foundDialog, state.activeModal === "found");
 }
 
 function renderProgress(state) {
   const progress = getProgress(state);
   elements.progressPercent.textContent = `${progress.percent}%`;
-  elements.progressToggle.setAttribute("aria-expanded", String(state.detailsExpanded));
-  elements.progressDetails.hidden = !state.detailsExpanded;
 
-  if (!state.detailsExpanded || !state.puzzle) {
+  if (!state.puzzle) {
     elements.progressDetails.replaceChildren();
     return;
   }
@@ -65,13 +72,21 @@ function renderLetters(state, actions) {
     return;
   }
 
+  const statsByLetter = new Map(state.letterStats.map((entry) => [entry.letter, entry]));
   const buttons = [...state.puzzle.letters].map((letter) => {
+    const stats = statsByLetter.get(letter);
     const button = document.createElement("button");
+
     button.className = "letter-button";
     button.type = "button";
     button.textContent = letter;
-    button.setAttribute("aria-label", `Add ${letter}`);
+    button.disabled = Boolean(stats?.done);
+    button.setAttribute(
+      "aria-label",
+      stats?.done ? `${letter}, completed` : `Add ${letter}, ${stats?.remaining ?? 0} words remaining`,
+    );
     button.addEventListener("click", () => actions.addLetter(letter));
+
     return button;
   });
 
@@ -84,14 +99,26 @@ function renderMessage(state) {
 }
 
 function renderFoundWords(state) {
-  const words = getSortedFoundWords(state);
-  elements.foundCount.textContent = pluralize(words.length, "word");
+  const recentWords = getRecentFoundWords(state);
+  const allWords = getSortedFoundWords(state);
 
-  const items = words.map((word) => {
-    const item = document.createElement("li");
-    item.textContent = word;
-    return item;
-  });
+  elements.foundCount.textContent = pluralize(allWords.length, "word");
+  elements.recentWords.replaceChildren(...recentWords.map(createWordItem));
+  elements.foundWords.replaceChildren(...allWords.map(createWordItem));
+}
 
-  elements.foundWords.replaceChildren(...items);
+function createWordItem(word) {
+  const item = document.createElement("li");
+  item.textContent = word;
+  return item;
+}
+
+function syncDialog(dialog, shouldBeOpen) {
+  if (shouldBeOpen && !dialog.open) {
+    dialog.showModal();
+  }
+
+  if (!shouldBeOpen && dialog.open) {
+    dialog.close();
+  }
 }

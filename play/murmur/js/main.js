@@ -3,6 +3,7 @@ import {
   clearWord,
   createState,
   deleteLetter,
+  isLetterDone,
   markFound,
   startPuzzle,
 } from "./state.js";
@@ -32,10 +33,19 @@ const actions = {
     }
 
     startPuzzle(state, wasm.generate_puzzle());
+    refreshLetterStats();
     render(state, actions);
   },
-  toggleDetails() {
-    state.detailsExpanded = !state.detailsExpanded;
+  openProgress() {
+    state.activeModal = "progress";
+    render(state, actions);
+  },
+  openFound() {
+    state.activeModal = "found";
+    render(state, actions);
+  },
+  closeModal() {
+    state.activeModal = null;
     render(state, actions);
   },
 };
@@ -43,7 +53,29 @@ const actions = {
 document.querySelector("#submit-word").addEventListener("click", actions.submitWord);
 document.querySelector("#delete-letter").addEventListener("click", actions.deleteLetter);
 document.querySelector("#new-game").addEventListener("click", actions.newGame);
-document.querySelector("#progress-toggle").addEventListener("click", actions.toggleDetails);
+document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
+document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
+document.querySelector("#recent-words").addEventListener("click", actions.openFound);
+document.querySelector("#recent-words").addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    actions.openFound();
+  }
+});
+document.querySelectorAll("[data-close-modal]").forEach((button) => {
+  button.addEventListener("click", actions.closeModal);
+});
+document.querySelectorAll("dialog").forEach((dialog) => {
+  dialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    actions.closeModal();
+  });
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) {
+      actions.closeModal();
+    }
+  });
+});
 document.addEventListener("keydown", handleKeydown);
 
 render(state, actions);
@@ -52,6 +84,7 @@ try {
   wasm = await import("../pkg/game_wasm.js");
   await wasm.default();
   startPuzzle(state, wasm.generate_puzzle());
+  refreshLetterStats();
 } catch (error) {
   console.error(error);
   state.message = "Could not load the WASM dictionary. Build web/pkg first.";
@@ -61,7 +94,7 @@ try {
 render(state, actions);
 
 function handleKeydown(event) {
-  if (!state.puzzle) {
+  if (!state.puzzle || state.activeModal) {
     return;
   }
 
@@ -85,13 +118,13 @@ function handleKeydown(event) {
     return;
   }
 
-  if (/^[a-z]$/.test(key) && state.puzzle.letters.includes(key)) {
+  if (/^[a-z]$/.test(key) && state.puzzle.letters.includes(key) && !isLetterDone(state, key)) {
     actions.addLetter(key);
   }
 }
 
 function submitCurrentWord() {
-  if (!state.puzzle) {
+  if (!state.puzzle || !wasm) {
     return;
   }
 
@@ -114,6 +147,7 @@ function submitCurrentWord() {
   const result = wasm.check_word(state.puzzle.letters, word);
   if (result.valid) {
     markFound(state, result.word);
+    refreshLetterStats();
     state.message = `Found ${result.word}.`;
     state.messageKind = "good";
   } else {
@@ -122,4 +156,13 @@ function submitCurrentWord() {
   }
 
   render(state, actions);
+}
+
+function refreshLetterStats() {
+  if (!wasm || !state.puzzle) {
+    state.letterStats = [];
+    return;
+  }
+
+  state.letterStats = wasm.get_letter_stats(state.puzzle.letters, [...state.foundWords]);
 }
