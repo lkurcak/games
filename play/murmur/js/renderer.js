@@ -142,14 +142,16 @@ function renderFoundWords(state) {
   elements.recentWords.replaceChildren(
     ...createRecentWordNodes(recentWords, state.puzzle?.letters ?? ""),
   );
-  elements.foundWords.replaceChildren(
-    ...regularWords.map((word) => createWordItem(word, state.puzzle?.letters ?? "")),
-  );
+  renderWordList(elements.foundWords, regularWords, state.puzzle?.letters ?? "");
   elements.foundWords.classList.toggle("hide-empty-message", bonusWords.length > 0);
   elements.bonusFoundSection.hidden = bonusWords.length === 0;
-  elements.bonusFoundWords.replaceChildren(
-    ...bonusWords.map((word) => createWordItem(word, state.puzzle?.letters ?? "")),
-  );
+  renderWordList(elements.bonusFoundWords, bonusWords, state.puzzle?.letters ?? "");
+}
+
+function renderWordList(element, words, letters) {
+  const rows = Math.max(1, Math.ceil(words.length / 2));
+  element.style.gridTemplateRows = `repeat(${rows}, auto)`;
+  element.replaceChildren(...words.map((word) => createWordItem(word, letters)));
 }
 
 function createWordItem(word, letters) {
