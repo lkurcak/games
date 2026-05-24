@@ -396,7 +396,7 @@ p {
 }
 
 .progress-details,
-.found-words,
+.found-word-groups,
 .info-slides {
   min-height: 0;
   overflow: auto;
@@ -421,17 +421,46 @@ p {
   font-variant-numeric: tabular-nums;
 }
 
+.found-word-groups {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
 .found-words {
   margin: 0;
   padding: 0;
-  columns: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 32px;
   list-style: none;
 }
 
 .found-words:empty::before {
   content: "No words found yet.";
+  grid-column: 1 / -1;
   color: var(--muted);
+}
+
+.found-words.hide-empty-message:empty::before {
+  content: none;
+}
+
+.bonus-found-section {
+  display: grid;
+  gap: 8px;
+}
+
+.bonus-found-section[hidden] {
+  display: none;
+}
+
+.bonus-found-section h3 {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .found-words li {

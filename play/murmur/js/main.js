@@ -3,6 +3,7 @@ import {
   clearWord,
   createState,
   deleteLetter,
+  hasFoundWord,
   isLetterDone,
   markFound,
   shuffleLetters,
@@ -132,7 +133,7 @@ function submitCurrentWord() {
     return;
   }
 
-  if (state.foundWords.has(word)) {
+  if (hasFoundWord(state, word)) {
     state.message = "Already found";
     state.messageKind = "note";
     render(state, actions);
@@ -141,9 +142,11 @@ function submitCurrentWord() {
 
   const result = wasm.check_word(state.puzzle.letters, word);
   if (result.valid) {
-    markFound(state, result.word);
+    markFound(state, result.word, result.bonus);
     refreshLetterStats();
-    state.message = `Found ${formatWord(result.word)}`;
+    state.message = result.bonus
+      ? `Bonus ${formatWord(result.word)}`
+      : `Found ${formatWord(result.word)}`;
     state.messageKind = "note";
     showVictoryIfComplete();
   } else {

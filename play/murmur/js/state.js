@@ -3,6 +3,8 @@ export function createState() {
     puzzle: null,
     currentWord: "",
     foundWords: new Set(),
+    bonusWords: new Set(),
+    foundEntries: [],
     letterStats: [],
     activeModal: null,
     victoryShown: false,
@@ -15,6 +17,8 @@ export function startPuzzle(state, puzzle) {
   state.puzzle = puzzle;
   state.currentWord = "";
   state.foundWords = new Set();
+  state.bonusWords = new Set();
+  state.foundEntries = [];
   state.letterStats = [];
   state.activeModal = null;
   state.victoryShown = false;
@@ -52,8 +56,14 @@ export function clearWord(state) {
   state.currentWord = "";
 }
 
-export function markFound(state, word) {
-  state.foundWords.add(word);
+export function markFound(state, word, bonus = false) {
+  if (bonus) {
+    state.bonusWords.add(word);
+  } else {
+    state.foundWords.add(word);
+  }
+
+  state.foundEntries.push(word);
   state.currentWord = "";
 }
 
@@ -76,11 +86,19 @@ export function getFoundByLength(state) {
 }
 
 export function getRecentFoundWords(state, limit = 24) {
-  return [...state.foundWords].slice(-limit).reverse();
+  return state.foundEntries.slice(-limit).reverse();
 }
 
 export function getSortedFoundWords(state) {
   return [...state.foundWords].sort((left, right) => left.localeCompare(right));
+}
+
+export function getSortedBonusWords(state) {
+  return [...state.bonusWords].sort((left, right) => left.localeCompare(right));
+}
+
+export function hasFoundWord(state, word) {
+  return state.foundWords.has(word) || state.bonusWords.has(word);
 }
 
 export function isLetterDone(state, letter) {

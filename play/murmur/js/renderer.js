@@ -2,6 +2,7 @@ import {
   getFoundByLength,
   getProgress,
   getRecentFoundWords,
+  getSortedBonusWords,
   getSortedFoundWords,
 } from "./state.js";
 import { formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
@@ -20,6 +21,8 @@ const elements = {
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
+  bonusFoundSection: document.querySelector("#bonus-found-section"),
+  bonusFoundWords: document.querySelector("#bonus-found-words"),
 };
 
 export function render(state, actions) {
@@ -85,7 +88,10 @@ function renderLetters(state, actions) {
   const statsByLetter = new Map(state.letterStats.map((entry) => [entry.letter, entry]));
   const foundByStart = getFoundByStart(state);
   const startsByLetter = new Map(
-    (state.puzzle.byStart ?? []).map((entry) => [entry.letter, Math.max(0, entry.total - (foundByStart.get(entry.letter) ?? 0))]),
+    (state.puzzle.byStart ?? []).map((entry) => [
+      entry.letter,
+      Math.max(0, entry.total - (foundByStart.get(entry.letter) ?? 0)),
+    ]),
   );
   const buttons = [...state.puzzle.letters].map((letter) => {
     const stats = statsByLetter.get(letter);
@@ -128,11 +134,22 @@ function renderMessage(state) {
 
 function renderFoundWords(state) {
   const recentWords = getRecentFoundWords(state);
-  const allWords = getSortedFoundWords(state);
+  const regularWords = getSortedFoundWords(state);
+  const bonusWords = getSortedBonusWords(state);
+  const totalWords = regularWords.length + bonusWords.length;
 
-  elements.foundCount.textContent = pluralize(allWords.length, "word");
-  elements.recentWords.textContent = recentWords.map(formatWord).join(", ");
-  elements.foundWords.replaceChildren(...allWords.map((word) => createWordItem(word, state.puzzle?.letters ?? "")));
+  elements.foundCount.textContent = pluralize(totalWords, "word");
+  elements.recentWords.replaceChildren(
+    ...createRecentWordNodes(recentWords, state.puzzle?.letters ?? ""),
+  );
+  elements.foundWords.replaceChildren(
+    ...regularWords.map((word) => createWordItem(word, state.puzzle?.letters ?? "")),
+  );
+  elements.foundWords.classList.toggle("hide-empty-message", bonusWords.length > 0);
+  elements.bonusFoundSection.hidden = bonusWords.length === 0;
+  elements.bonusFoundWords.replaceChildren(
+    ...bonusWords.map((word) => createWordItem(word, state.puzzle?.letters ?? "")),
+  );
 }
 
 function createWordItem(word, letters) {
@@ -140,6 +157,23 @@ function createWordItem(word, letters) {
   item.textContent = formatWord(word);
   item.classList.toggle("golden-word", wordUsesEveryLetter(word, letters));
   return item;
+}
+
+function createRecentWordNodes(entries, letters) {
+  const nodes = [];
+
+  entries.forEach((entry, index) => {
+    const item = document.createElement("span");
+    item.textContent = formatWord(entry);
+    item.classList.toggle("golden-word", wordUsesEveryLetter(entry, letters));
+    nodes.push(item);
+
+    if (index < entries.length - 1) {
+      nodes.push(document.createTextNode(", "));
+    }
+  });
+
+  return nodes;
 }
 
 function getFoundByStart(state) {
