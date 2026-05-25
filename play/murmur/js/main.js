@@ -75,6 +75,12 @@ document.querySelectorAll("dialog").forEach((dialog) => {
 });
 document.addEventListener("keydown", handleKeydown);
 
+// Prevent long-press context menu and accidental text selection on the game
+// surface so rapid tapping never triggers browser-level UI.
+const gamePanel = document.querySelector(".game-panel");
+gamePanel.addEventListener("contextmenu", (event) => event.preventDefault());
+gamePanel.addEventListener("selectstart", (event) => event.preventDefault());
+
 render(state, actions);
 
 try {

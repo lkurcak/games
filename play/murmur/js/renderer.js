@@ -77,12 +77,26 @@ function renderCurrentWord(state) {
   elements.currentWord.textContent = state.currentWord;
 }
 
+/**
+ * Cached letter button elements.  Buttons are created once per puzzle (keyed
+ * by the *sorted* letter set so that shuffles don't trigger a rebuild) and
+ * then updated in-place on every render.  A single delegated pointerdown
+ * listener on the grid container reads the current letter from each button's
+ * data attribute, so the handler stays valid even after shuffles.
+ */
+let letterCache = { key: "", buttons: [] };
+let letterDelegated = false;
+
 function renderLetters(state, actions) {
   if (!state.puzzle) {
+    letterCache = { key: "", buttons: [] };
     elements.letterButtons.replaceChildren();
     return;
   }
 
+  // Sorted key: same letter set in any order produces the same key, so
+  // shuffling letters is handled as a cheap in-place update.
+  const puzzleKey = [...state.puzzle.letters].sort().join("");
   const progress = getProgress(state);
   const showHints = progress.percent >= 50;
   const statsByLetter = new Map(state.letterStats.map((entry) => [entry.letter, entry]));
@@ -93,38 +107,60 @@ function renderLetters(state, actions) {
       Math.max(0, entry.total - (foundByStart.get(entry.letter) ?? 0)),
     ]),
   );
-  const buttons = [...state.puzzle.letters].map((letter) => {
+
+  // Rebuild buttons only when a new puzzle is started (different letter set).
+  if (letterCache.key !== puzzleKey) {
+    const buttons = [...state.puzzle.letters].map(() => {
+      const button = document.createElement("button");
+      const letterText = document.createElement("span");
+      const hint = document.createElement("span");
+
+      button.className = "letter-button";
+      button.type = "button";
+      letterText.className = "letter-text";
+      hint.className = "letter-hint";
+
+      button.append(letterText, hint);
+      return button;
+    });
+
+    letterCache = { key: puzzleKey, buttons };
+    elements.letterButtons.replaceChildren(...buttons);
+  }
+
+  // Install a single delegated pointerdown listener on the grid container.
+  // This is done once for the lifetime of the page – the handler reads each
+  // button's current data-letter attribute, so it stays valid across puzzles
+  // and shuffles without any rebinding.
+  if (!letterDelegated) {
+    letterDelegated = true;
+    elements.letterButtons.addEventListener("pointerdown", (event) => {
+      const button = event.target.closest(".letter-button");
+      if (!button || button.disabled) return;
+      event.preventDefault();
+      const letter = button.dataset.letter;
+      if (letter) actions.addLetter(letter);
+    });
+  }
+
+  // Update every button's mutable properties (letter, disabled, hints, aria).
+  const letters = [...state.puzzle.letters];
+  letterCache.buttons.forEach((button, i) => {
+    const letter = letters[i];
     const stats = statsByLetter.get(letter);
     const startCount = startsByLetter.get(letter) ?? 0;
-    const button = document.createElement("button");
-    const letterText = document.createElement("span");
 
-    button.className = "letter-button";
-    button.classList.toggle("with-hint", showHints);
-    button.type = "button";
+    button.dataset.letter = letter;
+    button.querySelector(".letter-text").textContent = letter;
     button.disabled = Boolean(stats?.done);
-
-    letterText.className = "letter-text";
-    letterText.textContent = letter;
-    button.append(letterText);
-
-    if (showHints) {
-      const hint = document.createElement("span");
-      hint.className = "letter-hint";
-      hint.textContent = String(startCount);
-      button.append(hint);
-    }
-
+    button.classList.toggle("with-hint", showHints);
     button.setAttribute(
       "aria-label",
       stats?.done ? `${letter}, completed` : `Add ${letter}, ${stats?.remaining ?? 0} words remaining`,
     );
-    button.addEventListener("click", () => actions.addLetter(letter));
 
-    return button;
+    button.querySelector(".letter-hint").textContent = showHints ? String(startCount) : "";
   });
-
-  elements.letterButtons.replaceChildren(...buttons);
 }
 
 function renderMessage(state) {
