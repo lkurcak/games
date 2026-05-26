@@ -14,6 +14,10 @@ import { describeCheckFailure, formatWord } from "./utils.js";
 
 const state = createState();
 let wasm = null;
+const deleteButton = document.querySelector("#delete-letter");
+const deleteHoldDelay = 450;
+let deleteHoldTimer = null;
+let suppressDeleteClick = false;
 
 const actions = {
   addLetter(letter) {
@@ -52,7 +56,19 @@ const actions = {
 };
 
 document.querySelector("#submit-word").addEventListener("click", actions.submitWord);
-document.querySelector("#delete-letter").addEventListener("click", actions.deleteLetter);
+deleteButton.addEventListener("click", (event) => {
+  if (suppressDeleteClick) {
+    event.preventDefault();
+    suppressDeleteClick = false;
+    return;
+  }
+
+  actions.deleteLetter();
+});
+deleteButton.addEventListener("pointerdown", startDeleteHold);
+deleteButton.addEventListener("pointerup", cancelDeleteHold);
+deleteButton.addEventListener("pointercancel", cancelDeleteHold);
+deleteButton.addEventListener("pointerleave", cancelDeleteHold);
 document.querySelector("#shuffle-letters").addEventListener("click", actions.shuffleLetters);
 document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
@@ -124,6 +140,30 @@ function handleKeydown(event) {
   if (/^[a-z]$/.test(key) && state.puzzle.letters.includes(key) && !isLetterDone(state, key)) {
     actions.addLetter(key);
   }
+}
+
+function startDeleteHold() {
+  if (!state.puzzle || state.activeModal) {
+    return;
+  }
+
+  cancelDeleteHold();
+  suppressDeleteClick = false;
+  deleteHoldTimer = window.setTimeout(() => {
+    deleteHoldTimer = null;
+    suppressDeleteClick = true;
+    clearWord(state);
+    render(state, actions);
+  }, deleteHoldDelay);
+}
+
+function cancelDeleteHold() {
+  if (!deleteHoldTimer) {
+    return;
+  }
+
+  window.clearTimeout(deleteHoldTimer);
+  deleteHoldTimer = null;
 }
 
 function submitCurrentWord() {
