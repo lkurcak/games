@@ -13,7 +13,7 @@
       "title": "Murmur",
       "description": "A quiet six-letter word hunt where every puzzle hides more words than it first whispers.",
       "icon": "assets/icons/murmur.svg",
-      "iconBackground": "#10141f",
+      "iconBackground": "#1a3a2a",
       "url": "play/murmur/"
     }
   ]

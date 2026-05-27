@@ -1,4 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#10141f" />
-  <path d="M15 43V21h8l9 11 9-11h8v22h-8V32l-9 11-9-11v11z" fill="#f7d56f" />
+  <!-- Scrabble-style tile: single "M" on dark green -->
+  <!-- Dark green background -->
+  <rect width="64" height="64" rx="8" fill="#1a3a2a"/>
+  <!-- Tile shadow -->
+  <rect x="12" y="12" width="42" height="42" rx="4" fill="#0e2218"/>
+  <!-- Tile face -->
+  <rect x="11" y="10" width="42" height="42" rx="4" fill="#f5e6c8"/>
+  <!-- Top highlight -->
+  <path d="M15 10h34a4 4 0 0 1 4 4H11a4 4 0 0 1 4-4z" fill="#fff" opacity="0.3"/>
+  <!-- Bottom shadow -->
+  <path d="M15 52h34a4 4 0 0 0 4-4H11a4 4 0 0 0 4 4z" fill="#000" opacity="0.1"/>
+  <!-- Letter M -->
+  <text x="32" y="41" font-family="Georgia, 'Times New Roman', serif" font-weight="bold"
+        font-size="30" fill="#2c1810" text-anchor="middle">M</text>
+  <!-- Point value -->
+  <text x="47" y="49" font-family="Arial, sans-serif" font-weight="bold"
+        font-size="8" fill="#2c1810" text-anchor="middle">3</text>
 </svg>
