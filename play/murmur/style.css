@@ -15,6 +15,8 @@
   --disabled: #b8b0a3;
   --focus: #8a6f3e;
   --gold: #a87500;
+  --danger: #b7372d;
+  --success: #2f9e44;
   --placeholder: #c5baaa;
   --message: #6f675d;
   --backdrop: rgb(23 23 23 / 36%);
@@ -37,6 +39,8 @@
     --disabled: #68635d;
     --focus: #d0b36c;
     --gold: #e4b84a;
+    --danger: #ff6b5f;
+    --success: #63d27b;
     --placeholder: #605d58;
     --message: #b7afa4;
     --backdrop: rgb(0 0 0 / 52%);
@@ -273,6 +277,7 @@ p {
 .progress-button:active,
 .plain-button:active,
 .submit-button:active,
+.forfeit-button:active,
 .found-summary:active,
 .icon-button:active {
   transform: translateY(1px);
@@ -304,15 +309,23 @@ p {
 }
 
 .plain-button,
-.submit-button {
+.submit-button,
+.forfeit-button {
   min-height: 48px;
   padding: 10px 18px;
   border: 1px solid var(--line);
   background: var(--button);
 }
 
-.plain-button {
+.plain-button,
+.forfeit-button {
   color: var(--muted);
+}
+
+.plain-button:disabled,
+.submit-button:disabled {
+  color: var(--disabled);
+  background: var(--button-subtle);
 }
 
 .submit-button {
@@ -384,6 +397,10 @@ p {
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
+.progress-card {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -414,6 +431,11 @@ p {
 .progress-details {
   display: grid;
   gap: 10px;
+}
+
+.forfeit-button {
+  justify-self: stretch;
+  font-weight: 800;
 }
 
 .progress-line {
@@ -486,6 +508,10 @@ p {
   font-weight: 800;
 }
 
+.found-words li.missed-word {
+  color: var(--danger);
+}
+
 .info-slides {
   display: grid;
   grid-auto-flow: column;
@@ -556,6 +582,32 @@ p {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 4;
+}
+
+.forfeit-progress {
+  width: 112px;
+  height: 112px;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.forfeit-track {
+  stroke: color-mix(in srgb, var(--success) 18%, transparent);
+  stroke-width: 8;
+}
+
+.forfeit-ring {
+  stroke: var(--success);
+  stroke-width: 8;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dasharray 180ms ease;
+}
+
+.forfeit-check {
+  stroke: var(--success);
+  stroke-width: 7;
 }
 
 .victory-body h3 {

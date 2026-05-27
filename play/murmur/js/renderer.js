@@ -4,6 +4,7 @@ import {
   getRecentFoundWords,
   getSortedBonusWords,
   getSortedFoundWords,
+  getSortedMissedWords,
 } from "./state.js";
 import { formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
 
@@ -12,12 +13,22 @@ const elements = {
   progressPercent: document.querySelector("#progress-percent"),
   progressFill: document.querySelector("#progress-fill"),
   progressDetails: document.querySelector("#progress-details"),
+  forfeitGame: document.querySelector("#forfeit-game"),
   currentWord: document.querySelector("#current-word"),
   letterButtons: document.querySelector("#letter-buttons"),
+  deleteLetter: document.querySelector("#delete-letter"),
+  shuffleLetters: document.querySelector("#shuffle-letters"),
+  submitWord: document.querySelector("#submit-word"),
   message: document.querySelector("#message"),
   foundDialog: document.querySelector("#found-dialog"),
   infoDialog: document.querySelector("#info-dialog"),
   victoryDialog: document.querySelector("#victory-dialog"),
+  victoryHeading: document.querySelector("#victory-heading"),
+  victoryTrophy: document.querySelector("#victory-trophy"),
+  forfeitIcon: document.querySelector("#forfeit-icon"),
+  forfeitProgressRing: document.querySelector("#forfeit-progress-ring"),
+  victoryTitle: document.querySelector("#victory-title"),
+  victoryText: document.querySelector("#victory-text"),
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
@@ -29,8 +40,10 @@ export function render(state, actions) {
   renderProgress(state);
   renderCurrentWord(state);
   renderLetters(state, actions);
+  renderControls(state);
   renderMessage(state);
   renderFoundWords(state);
+  renderEndModal(state);
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
@@ -39,8 +52,11 @@ export function render(state, actions) {
 
 function renderProgress(state) {
   const progress = getProgress(state);
+  const canForfeit =
+    state.puzzle && !state.gaveUp && progress.percent >= 50 && progress.found < progress.total;
   elements.progressPercent.textContent = `${progress.percent}%`;
   elements.progressFill.style.width = `${progress.percent}%`;
+  elements.forfeitGame.hidden = !canForfeit;
 
   if (!state.puzzle) {
     elements.progressDetails.replaceChildren();
@@ -75,6 +91,13 @@ function renderProgress(state) {
 
 function renderCurrentWord(state) {
   elements.currentWord.textContent = state.currentWord;
+}
+
+function renderControls(state) {
+  const disabled = !state.puzzle || state.gaveUp;
+  elements.deleteLetter.disabled = disabled;
+  elements.shuffleLetters.disabled = disabled;
+  elements.submitWord.disabled = disabled;
 }
 
 /**
@@ -152,12 +175,15 @@ function renderLetters(state, actions) {
 
     button.dataset.letter = letter;
     button.querySelector(".letter-text").textContent = letter;
-    button.disabled = Boolean(stats?.done);
+    button.disabled = state.gaveUp || Boolean(stats?.done);
     button.classList.toggle("with-hint", showHints);
-    button.setAttribute(
-      "aria-label",
-      stats?.done ? `${letter}, completed` : `Add ${letter}, ${stats?.remaining ?? 0} words remaining`,
-    );
+    let ariaLabel = `Add ${letter}, ${stats?.remaining ?? 0} words remaining`;
+    if (state.gaveUp) {
+      ariaLabel = `${letter}, game over`;
+    } else if (stats?.done) {
+      ariaLabel = `${letter}, completed`;
+    }
+    button.setAttribute("aria-label", ariaLabel);
 
     button.querySelector(".letter-hint").textContent = showHints ? String(startCount) : "";
   });
@@ -171,17 +197,26 @@ function renderMessage(state) {
 function renderFoundWords(state) {
   const recentWords = getRecentFoundWords(state);
   const regularWords = getSortedFoundWords(state);
+  const missedWords = getSortedMissedWords(state);
   const bonusWords = getSortedBonusWords(state);
   const totalWords = regularWords.length + bonusWords.length;
+  const regularItems = [
+    ...regularWords.map((word) => ({ word, missed: false })),
+    ...missedWords.map((word) => ({ word, missed: true })),
+  ].sort((left, right) => left.word.localeCompare(right.word));
 
   elements.foundCount.textContent = pluralize(totalWords, "word");
   elements.recentWords.replaceChildren(
     ...createRecentWordNodes(recentWords, state.puzzle?.letters ?? ""),
   );
-  renderWordList(elements.foundWords, regularWords, state.puzzle?.letters ?? "");
+  renderWordList(elements.foundWords, regularItems, state.puzzle?.letters ?? "");
   elements.foundWords.classList.toggle("hide-empty-message", bonusWords.length > 0);
   elements.bonusFoundSection.hidden = bonusWords.length === 0;
-  renderWordList(elements.bonusFoundWords, bonusWords, state.puzzle?.letters ?? "");
+  renderWordList(
+    elements.bonusFoundWords,
+    bonusWords.map((word) => ({ word, missed: false })),
+    state.puzzle?.letters ?? "",
+  );
 }
 
 function renderWordList(element, words, letters) {
@@ -190,11 +225,26 @@ function renderWordList(element, words, letters) {
   element.replaceChildren(...words.map((word) => createWordItem(word, letters)));
 }
 
-function createWordItem(word, letters) {
+function createWordItem(entry, letters) {
+  const { word, missed } = entry;
   const item = document.createElement("li");
   item.textContent = formatWord(word);
   item.classList.toggle("golden-word", wordUsesEveryLetter(word, letters));
+  item.classList.toggle("missed-word", missed);
   return item;
+}
+
+function renderEndModal(state) {
+  const progress = getProgress(state);
+
+  elements.victoryHeading.textContent = state.gaveUp ? "Game Over" : "Complete";
+  elements.victoryTrophy.hidden = state.gaveUp;
+  elements.forfeitIcon.hidden = !state.gaveUp;
+  elements.victoryTitle.textContent = state.gaveUp ? "You gave up." : "You found every word.";
+  elements.victoryText.textContent = state.gaveUp
+    ? "Missed words are marked red."
+    : "Perfect game.";
+  elements.forfeitProgressRing.style.strokeDasharray = `${progress.percent} 100`;
 }
 
 function createRecentWordNodes(entries, letters) {

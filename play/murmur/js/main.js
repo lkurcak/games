@@ -3,6 +3,8 @@ import {
   clearWord,
   createState,
   deleteLetter,
+  getProgress,
+  giveUp,
   hasFoundWord,
   isLetterDone,
   markFound,
@@ -49,6 +51,9 @@ const actions = {
     state.activeModal = "info";
     render(state, actions);
   },
+  giveUp() {
+    giveUpGame();
+  },
   closeModal() {
     state.activeModal = null;
     render(state, actions);
@@ -71,6 +76,7 @@ deleteButton.addEventListener("pointercancel", cancelDeleteHold);
 deleteButton.addEventListener("pointerleave", cancelDeleteHold);
 document.querySelector("#shuffle-letters").addEventListener("click", actions.shuffleLetters);
 document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
+document.querySelector("#forfeit-game").addEventListener("click", actions.giveUp);
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
 document.querySelector("#info-prev").addEventListener("click", () => scrollInfoSlide(-1));
@@ -113,7 +119,7 @@ try {
 render(state, actions);
 
 function handleKeydown(event) {
-  if (!state.puzzle || state.activeModal) {
+  if (!state.puzzle || state.gaveUp || state.activeModal) {
     return;
   }
 
@@ -143,7 +149,7 @@ function handleKeydown(event) {
 }
 
 function startDeleteHold() {
-  if (!state.puzzle || state.activeModal) {
+  if (!state.puzzle || state.gaveUp || state.activeModal) {
     return;
   }
 
@@ -167,7 +173,7 @@ function cancelDeleteHold() {
 }
 
 function submitCurrentWord() {
-  if (!state.puzzle || !wasm) {
+  if (!state.puzzle || state.gaveUp || !wasm) {
     return;
   }
 
@@ -200,6 +206,23 @@ function submitCurrentWord() {
     state.messageKind = "note";
   }
 
+  render(state, actions);
+}
+
+function giveUpGame() {
+  const progress = getProgress(state);
+  if (
+    !state.puzzle ||
+    state.gaveUp ||
+    !wasm ||
+    progress.percent < 50 ||
+    progress.found >= progress.total
+  ) {
+    return;
+  }
+
+  const answers = wasm.get_answers(state.puzzle.letters);
+  giveUp(state, Array.isArray(answers) ? answers : []);
   render(state, actions);
 }
 

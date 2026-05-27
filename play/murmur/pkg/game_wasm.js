@@ -24,6 +24,17 @@ export function generate_puzzle() {
 
 /**
  * @param {string} letters
+ * @returns {any}
+ */
+export function get_answers(letters) {
+    const ptr0 = passStringToWasm0(letters, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.get_answers(ptr0, len0);
+    return ret;
+}
+
+/**
+ * @param {string} letters
  * @param {any} found_words
  * @returns {any}
  */

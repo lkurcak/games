@@ -5,6 +5,8 @@ export function check_word(letters: string, word: string): any;
 
 export function generate_puzzle(): any;
 
+export function get_answers(letters: string): any;
+
 export function get_letter_stats(letters: string, found_words: any): any;
 
 export function get_puzzle_stats(letters: string): any;
@@ -15,6 +17,7 @@ export interface InitOutput {
     readonly memory: WebAssembly.Memory;
     readonly check_word: (a: number, b: number, c: number, d: number) => any;
     readonly generate_puzzle: () => any;
+    readonly get_answers: (a: number, b: number) => any;
     readonly get_letter_stats: (a: number, b: number, c: any) => any;
     readonly get_puzzle_stats: (a: number, b: number) => any;
     readonly __wbindgen_malloc: (a: number, b: number) => number;

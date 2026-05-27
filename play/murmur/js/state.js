@@ -4,10 +4,12 @@ export function createState() {
     currentWord: "",
     foundWords: new Set(),
     bonusWords: new Set(),
+    missedWords: [],
     foundEntries: [],
     letterStats: [],
     activeModal: null,
     victoryShown: false,
+    gaveUp: false,
     message: "Loading dictionary...",
     messageKind: "",
   };
@@ -18,16 +20,23 @@ export function startPuzzle(state, puzzle) {
   state.currentWord = "";
   state.foundWords = new Set();
   state.bonusWords = new Set();
+  state.missedWords = [];
   state.foundEntries = [];
   state.letterStats = [];
   state.activeModal = null;
   state.victoryShown = false;
+  state.gaveUp = false;
   state.message = "";
   state.messageKind = "";
 }
 
 export function addLetter(state, letter) {
-  if (!state.puzzle || !state.puzzle.letters.includes(letter) || isLetterDone(state, letter)) {
+  if (
+    state.gaveUp ||
+    !state.puzzle ||
+    !state.puzzle.letters.includes(letter) ||
+    isLetterDone(state, letter)
+  ) {
     return;
   }
 
@@ -35,11 +44,15 @@ export function addLetter(state, letter) {
 }
 
 export function deleteLetter(state) {
+  if (state.gaveUp) {
+    return;
+  }
+
   state.currentWord = state.currentWord.slice(0, -1);
 }
 
 export function shuffleLetters(state) {
-  if (!state.puzzle) {
+  if (state.gaveUp || !state.puzzle) {
     return;
   }
 
@@ -53,10 +66,18 @@ export function shuffleLetters(state) {
 }
 
 export function clearWord(state) {
+  if (state.gaveUp) {
+    return;
+  }
+
   state.currentWord = "";
 }
 
 export function markFound(state, word, bonus = false) {
+  if (state.gaveUp) {
+    return;
+  }
+
   if (bonus) {
     state.bonusWords.add(word);
   } else {
@@ -65,6 +86,17 @@ export function markFound(state, word, bonus = false) {
 
   state.foundEntries.push(word);
   state.currentWord = "";
+}
+
+export function giveUp(state, answers) {
+  state.gaveUp = true;
+  state.currentWord = "";
+  state.missedWords = [...new Set(answers)]
+    .filter((word) => !state.foundWords.has(word))
+    .sort((left, right) => left.localeCompare(right));
+  state.activeModal = "victory";
+  state.message = "Game over";
+  state.messageKind = "note";
 }
 
 export function getProgress(state) {
@@ -91,6 +123,10 @@ export function getRecentFoundWords(state, limit = 24) {
 
 export function getSortedFoundWords(state) {
   return [...state.foundWords].sort((left, right) => left.localeCompare(right));
+}
+
+export function getSortedMissedWords(state) {
+  return [...state.missedWords];
 }
 
 export function getSortedBonusWords(state) {

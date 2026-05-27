@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const check_word: (a: number, b: number, c: number, d: number) => any;
 export const generate_puzzle: () => any;
+export const get_answers: (a: number, b: number) => any;
 export const get_letter_stats: (a: number, b: number, c: any) => any;
 export const get_puzzle_stats: (a: number, b: number) => any;
 export const __wbindgen_malloc: (a: number, b: number) => number;
