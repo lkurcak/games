@@ -23,12 +23,8 @@ const elements = {
   foundDialog: document.querySelector("#found-dialog"),
   infoDialog: document.querySelector("#info-dialog"),
   victoryDialog: document.querySelector("#victory-dialog"),
-  victoryHeading: document.querySelector("#victory-heading"),
-  victoryTrophy: document.querySelector("#victory-trophy"),
-  forfeitIcon: document.querySelector("#forfeit-icon"),
+  forfeitDialog: document.querySelector("#forfeit-dialog"),
   forfeitProgressRing: document.querySelector("#forfeit-progress-ring"),
-  victoryTitle: document.querySelector("#victory-title"),
-  victoryText: document.querySelector("#victory-text"),
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
@@ -43,11 +39,12 @@ export function render(state, actions) {
   renderControls(state);
   renderMessage(state);
   renderFoundWords(state);
-  renderEndModal(state);
+  renderForfeitModal(state);
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
   syncDialog(elements.victoryDialog, state.activeModal === "victory");
+  syncDialog(elements.forfeitDialog, state.activeModal === "forfeit");
 }
 
 function renderProgress(state) {
@@ -234,16 +231,9 @@ function createWordItem(entry, letters) {
   return item;
 }
 
-function renderEndModal(state) {
+function renderForfeitModal(state) {
   const progress = getProgress(state);
 
-  elements.victoryHeading.textContent = state.gaveUp ? "Game Over" : "Complete";
-  elements.victoryTrophy.hidden = state.gaveUp;
-  elements.forfeitIcon.hidden = !state.gaveUp;
-  elements.victoryTitle.textContent = state.gaveUp ? "You gave up." : "You found every word.";
-  elements.victoryText.textContent = state.gaveUp
-    ? "Missed words are marked red."
-    : "Perfect game.";
   elements.forfeitProgressRing.style.strokeDasharray = `${progress.percent} 100`;
 }
 

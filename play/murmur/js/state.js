@@ -94,7 +94,7 @@ export function giveUp(state, answers) {
   state.missedWords = [...new Set(answers)]
     .filter((word) => !state.foundWords.has(word))
     .sort((left, right) => left.localeCompare(right));
-  state.activeModal = "victory";
+  state.activeModal = "forfeit";
   state.message = "Game over";
   state.messageKind = "note";
 }
