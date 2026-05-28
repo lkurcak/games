@@ -4,10 +4,10 @@ import {
   createState,
   deleteLetter,
   getProgress,
-  giveUp,
   hasFoundWord,
   isLetterDone,
   markFound,
+  revealAnswers,
   shuffleLetters,
   startPuzzle,
 } from "./state.js";
@@ -53,8 +53,8 @@ const actions = {
     state.activeModal = "info";
     render(state, actions);
   },
-  giveUp() {
-    giveUpGame();
+  revealAnswers() {
+    revealAllAnswers();
   },
   closeModal() {
     state.activeModal = null;
@@ -78,7 +78,7 @@ deleteButton.addEventListener("pointercancel", cancelDeleteHold);
 deleteButton.addEventListener("pointerleave", cancelDeleteHold);
 document.querySelector("#shuffle-letters").addEventListener("click", actions.shuffleLetters);
 document.querySelector("#progress-toggle").addEventListener("click", actions.openProgress);
-document.querySelector("#forfeit-game").addEventListener("click", actions.giveUp);
+document.querySelector("#reveal-answers").addEventListener("click", actions.revealAnswers);
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
 document.querySelector("#info-prev").addEventListener("click", () => scrollInfoSlide(-1));
@@ -121,7 +121,7 @@ try {
 render(state, actions);
 
 function handleKeydown(event) {
-  if (!state.puzzle || state.gaveUp || state.activeModal) {
+  if (!state.puzzle || state.answersRevealed || state.activeModal) {
     return;
   }
 
@@ -163,7 +163,7 @@ function handleKeydown(event) {
 }
 
 function startDeleteHold() {
-  if (!state.puzzle || state.gaveUp || state.activeModal) {
+  if (!state.puzzle || state.answersRevealed || state.activeModal) {
     return;
   }
 
@@ -190,7 +190,7 @@ function cancelDeleteHold() {
 }
 
 function submitCurrentWord() {
-  if (!state.puzzle || state.gaveUp || !wasm) {
+  if (!state.puzzle || state.answersRevealed || !wasm) {
     return;
   }
 
@@ -226,11 +226,11 @@ function submitCurrentWord() {
   render(state, actions);
 }
 
-function giveUpGame() {
+function revealAllAnswers() {
   const progress = getProgress(state);
   if (
     !state.puzzle ||
-    state.gaveUp ||
+    state.answersRevealed ||
     !wasm ||
     progress.percent < 50 ||
     progress.found >= progress.total
@@ -239,7 +239,7 @@ function giveUpGame() {
   }
 
   const answers = wasm.get_answers(state.puzzle.letters);
-  giveUp(state, Array.isArray(answers) ? answers : []);
+  revealAnswers(state, Array.isArray(answers) ? answers : []);
   render(state, actions);
 }
 
@@ -263,5 +263,20 @@ function showVictoryIfComplete() {
 
 function scrollInfoSlide(direction) {
   const slides = document.querySelector("#info-dialog .info-slides");
-  slides.scrollBy({ left: direction * slides.clientWidth, behavior: "smooth" });
+  const slideWidth = slides.clientWidth;
+  const lastSlideIndex = slides.children.length - 1;
+  if (!slideWidth || lastSlideIndex < 0) {
+    return;
+  }
+
+  const currentIndex = Math.min(
+    lastSlideIndex,
+    Math.max(0, Math.round(slides.scrollLeft / slideWidth)),
+  );
+  const targetIndex = Math.min(lastSlideIndex, Math.max(0, currentIndex + direction));
+  const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth";
+
+  slides.scrollTo({ left: targetIndex * slideWidth, behavior });
 }

@@ -61,8 +61,8 @@
           <h2>Progress</h2>
           <button class="modal-close" type="button" data-close-modal aria-label="Close progress">&times;</button>
         </div>
-        <div id="progress-details" class="progress-details"></div>
-        <button id="forfeit-game" class="forfeit-button" type="button" hidden>Reveal Answers</button>
+        <div id="progress-details" class="progress-details modal-scroll"></div>
+        <button id="reveal-answers" class="reveal-button" type="button" hidden>Reveal Answers</button>
       </div>
     </dialog>
 
@@ -72,7 +72,7 @@
           <h2>Found Words</h2>
           <button class="modal-close" type="button" data-close-modal aria-label="Close found words">&times;</button>
         </div>
-        <div class="found-word-groups">
+        <div class="found-word-groups modal-scroll">
           <ol id="found-words" class="found-words"></ol>
           <section id="bonus-found-section" class="bonus-found-section" hidden>
             <h3>Bonus Words</h3>
@@ -88,7 +88,7 @@
           <h2>How To Play</h2>
           <button class="modal-close" type="button" data-close-modal aria-label="Close rules">&times;</button>
         </div>
-        <div class="info-slides" aria-label="Rules">
+        <div class="info-slides modal-scroll" aria-label="Rules">
           <section class="info-slide" aria-label="Basic rules">
             <h3>Find Words</h3>
             <p>Use the six letters to make English words.</p>
@@ -108,13 +108,13 @@
       </div>
     </dialog>
 
-    <dialog id="victory-dialog" class="modal victory-modal">
-      <div class="modal-card victory-card">
+    <dialog id="victory-dialog" class="modal result-modal">
+      <div class="modal-card result-card">
         <div class="modal-header">
           <h2>Solved</h2>
-          <button class="modal-close" type="button" data-close-modal aria-label="Close victory">&times;</button>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close solved">&times;</button>
         </div>
-        <div class="victory-body">
+        <div class="result-body">
           <svg class="trophy" viewBox="0 0 96 96" aria-hidden="true">
             <path d="M31 16h34v13c0 18-7 29-17 29S31 47 31 29V16Z" />
             <path d="M31 23H16v7c0 13 7 21 18 22M65 23h15v7c0 13-7 21-18 22" />
@@ -126,17 +126,17 @@
       </div>
     </dialog>
 
-    <dialog id="forfeit-dialog" class="modal victory-modal">
-      <div class="modal-card victory-card">
+    <dialog id="answers-dialog" class="modal result-modal">
+      <div class="modal-card result-card">
         <div class="modal-header">
           <h2>Answers Revealed</h2>
           <button class="modal-close" type="button" data-close-modal aria-label="Close answers">&times;</button>
         </div>
-        <div class="victory-body">
-          <svg class="forfeit-progress" viewBox="0 0 96 96" aria-hidden="true">
-            <circle class="forfeit-track" cx="48" cy="48" r="38" pathLength="100" />
-            <circle id="forfeit-progress-ring" class="forfeit-ring" cx="48" cy="48" r="38" pathLength="100" />
-            <path class="forfeit-check" d="M31 49.5 43 61 66 36" />
+        <div class="result-body">
+          <svg class="answers-progress" viewBox="0 0 96 96" aria-hidden="true">
+            <circle class="answers-track" cx="48" cy="48" r="38" pathLength="100" />
+            <circle id="answers-progress-ring" class="answers-ring" cx="48" cy="48" r="38" pathLength="100" />
+            <path class="answers-check" d="M31 49.5 43 61 66 36" />
           </svg>
           <h3>Remaining answers shown.</h3>
           <p>Missed words are marked red.</p>

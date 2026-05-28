@@ -9,7 +9,7 @@ export function createState() {
     letterStats: [],
     activeModal: null,
     victoryShown: false,
-    gaveUp: false,
+    answersRevealed: false,
     message: "Loading dictionary...",
     messageKind: "",
   };
@@ -25,14 +25,14 @@ export function startPuzzle(state, puzzle) {
   state.letterStats = [];
   state.activeModal = null;
   state.victoryShown = false;
-  state.gaveUp = false;
+  state.answersRevealed = false;
   state.message = "";
   state.messageKind = "";
 }
 
 export function addLetter(state, letter) {
   if (
-    state.gaveUp ||
+    state.answersRevealed ||
     !state.puzzle ||
     !state.puzzle.letters.includes(letter) ||
     isLetterDone(state, letter)
@@ -44,7 +44,7 @@ export function addLetter(state, letter) {
 }
 
 export function deleteLetter(state) {
-  if (state.gaveUp) {
+  if (state.answersRevealed) {
     return;
   }
 
@@ -52,7 +52,7 @@ export function deleteLetter(state) {
 }
 
 export function shuffleLetters(state) {
-  if (state.gaveUp || !state.puzzle) {
+  if (state.answersRevealed || !state.puzzle) {
     return;
   }
 
@@ -66,7 +66,7 @@ export function shuffleLetters(state) {
 }
 
 export function clearWord(state) {
-  if (state.gaveUp) {
+  if (state.answersRevealed) {
     return;
   }
 
@@ -74,7 +74,7 @@ export function clearWord(state) {
 }
 
 export function markFound(state, word, bonus = false) {
-  if (state.gaveUp) {
+  if (state.answersRevealed) {
     return;
   }
 
@@ -88,13 +88,13 @@ export function markFound(state, word, bonus = false) {
   state.currentWord = "";
 }
 
-export function giveUp(state, answers) {
-  state.gaveUp = true;
+export function revealAnswers(state, answers) {
+  state.answersRevealed = true;
   state.currentWord = "";
   state.missedWords = [...new Set(answers)]
     .filter((word) => !state.foundWords.has(word))
     .sort((left, right) => left.localeCompare(right));
-  state.activeModal = "forfeit";
+  state.activeModal = "answers";
   state.message = "Answers revealed";
   state.messageKind = "note";
 }

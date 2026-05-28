@@ -13,7 +13,7 @@ const elements = {
   progressPercent: document.querySelector("#progress-percent"),
   progressFill: document.querySelector("#progress-fill"),
   progressDetails: document.querySelector("#progress-details"),
-  forfeitGame: document.querySelector("#forfeit-game"),
+  revealAnswers: document.querySelector("#reveal-answers"),
   currentWord: document.querySelector("#current-word"),
   letterButtons: document.querySelector("#letter-buttons"),
   deleteLetter: document.querySelector("#delete-letter"),
@@ -23,8 +23,8 @@ const elements = {
   foundDialog: document.querySelector("#found-dialog"),
   infoDialog: document.querySelector("#info-dialog"),
   victoryDialog: document.querySelector("#victory-dialog"),
-  forfeitDialog: document.querySelector("#forfeit-dialog"),
-  forfeitProgressRing: document.querySelector("#forfeit-progress-ring"),
+  answersDialog: document.querySelector("#answers-dialog"),
+  answersProgressRing: document.querySelector("#answers-progress-ring"),
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
@@ -39,21 +39,24 @@ export function render(state, actions) {
   renderControls(state);
   renderMessage(state);
   renderFoundWords(state);
-  renderForfeitModal(state);
+  renderAnswersModal(state);
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
   syncDialog(elements.victoryDialog, state.activeModal === "victory");
-  syncDialog(elements.forfeitDialog, state.activeModal === "forfeit");
+  syncDialog(elements.answersDialog, state.activeModal === "answers");
 }
 
 function renderProgress(state) {
   const progress = getProgress(state);
-  const canForfeit =
-    state.puzzle && !state.gaveUp && progress.percent >= 50 && progress.found < progress.total;
+  const canRevealAnswers =
+    state.puzzle &&
+    !state.answersRevealed &&
+    progress.percent >= 50 &&
+    progress.found < progress.total;
   elements.progressPercent.textContent = `${progress.percent}%`;
   elements.progressFill.style.width = `${progress.percent}%`;
-  elements.forfeitGame.hidden = !canForfeit;
+  elements.revealAnswers.hidden = !canRevealAnswers;
 
   if (!state.puzzle) {
     elements.progressDetails.replaceChildren();
@@ -91,7 +94,7 @@ function renderCurrentWord(state) {
 }
 
 function renderControls(state) {
-  const disabled = !state.puzzle || state.gaveUp;
+  const disabled = !state.puzzle || state.answersRevealed;
   elements.deleteLetter.disabled = disabled;
   elements.shuffleLetters.disabled = disabled;
   elements.submitWord.disabled = disabled;
@@ -172,10 +175,10 @@ function renderLetters(state, actions) {
 
     button.dataset.letter = letter;
     button.querySelector(".letter-text").textContent = letter;
-    button.disabled = state.gaveUp || Boolean(stats?.done);
+    button.disabled = state.answersRevealed || Boolean(stats?.done);
     let ariaLabel = `Add ${letter}, ${stats?.remaining ?? 0} words remaining`;
-    if (state.gaveUp) {
-      ariaLabel = `${letter}, game over`;
+    if (state.answersRevealed) {
+      ariaLabel = `${letter}, answers revealed`;
     } else if (stats?.done) {
       ariaLabel = `${letter}, completed`;
     }
@@ -230,10 +233,10 @@ function createWordItem(entry, letters) {
   return item;
 }
 
-function renderForfeitModal(state) {
+function renderAnswersModal(state) {
   const progress = getProgress(state);
 
-  elements.forfeitProgressRing.style.strokeDasharray = `${progress.percent} 100`;
+  elements.answersProgressRing.style.strokeDasharray = `${progress.percent} 100`;
 }
 
 function createRecentWordNodes(entries, letters) {

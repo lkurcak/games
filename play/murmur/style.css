@@ -281,7 +281,7 @@ p {
 .progress-button:active,
 .plain-button:active,
 .submit-button:active,
-.forfeit-button:active,
+.reveal-button:active,
 .found-summary:active,
 .icon-button:active {
   transform: translateY(1px);
@@ -314,7 +314,7 @@ p {
 
 .plain-button,
 .submit-button,
-.forfeit-button {
+.reveal-button {
   min-height: 48px;
   padding: 10px 18px;
   border: 1px solid var(--line);
@@ -357,7 +357,7 @@ p {
 }
 
 .plain-button,
-.forfeit-button {
+.reveal-button {
   color: var(--muted);
 }
 
@@ -418,6 +418,7 @@ p {
   color: var(--text);
   background: var(--panel);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 .modal::backdrop {
@@ -425,11 +426,12 @@ p {
 }
 
 .modal-card {
-  max-height: inherit;
+  max-height: min(78dvh, 560px);
   padding: 18px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
+  overflow: hidden;
 }
 
 .info-modal .modal-card {
@@ -460,11 +462,11 @@ p {
   line-height: 1;
 }
 
-.progress-details,
-.found-word-groups,
-.info-slides {
+.modal-scroll {
   min-height: 0;
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .progress-details {
@@ -472,7 +474,7 @@ p {
   gap: 10px;
 }
 
-.forfeit-button {
+.reveal-button {
   justify-self: stretch;
   font-weight: 800;
 }
@@ -495,6 +497,10 @@ p {
   display: grid;
   align-content: start;
   gap: 18px;
+}
+
+#found-dialog .found-word-groups {
+  overflow-x: hidden;
 }
 
 .found-words {
@@ -556,6 +562,7 @@ p {
   grid-auto-flow: column;
   grid-auto-columns: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -572,6 +579,7 @@ p {
   align-content: start;
   gap: 12px;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .info-slide h3 {
@@ -602,11 +610,11 @@ p {
   line-height: 1;
 }
 
-.victory-card {
+.result-card {
   text-align: center;
 }
 
-.victory-body {
+.result-body {
   display: grid;
   justify-items: center;
   gap: 12px;
@@ -623,7 +631,7 @@ p {
   stroke-width: 4;
 }
 
-.forfeit-progress {
+.answers-progress {
   width: 112px;
   height: 112px;
   fill: none;
@@ -631,12 +639,12 @@ p {
   stroke-linejoin: round;
 }
 
-.forfeit-track {
+.answers-track {
   stroke: color-mix(in srgb, var(--success) 18%, transparent);
   stroke-width: 8;
 }
 
-.forfeit-ring {
+.answers-ring {
   stroke: var(--success);
   stroke-width: 8;
   transform: rotate(-90deg);
@@ -644,16 +652,16 @@ p {
   transition: stroke-dasharray 180ms ease;
 }
 
-.forfeit-check {
+.answers-check {
   stroke: var(--success);
   stroke-width: 7;
 }
 
-.victory-body h3 {
+.result-body h3 {
   font-size: 1.35rem;
 }
 
-.victory-body p {
+.result-body p {
   color: var(--muted);
 }
 
