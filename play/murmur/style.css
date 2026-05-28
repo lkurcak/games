@@ -255,11 +255,15 @@ p {
   position: relative;
   min-width: 0;
   min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--line);
   border-radius: 22px;
   background: var(--button);
   font-size: clamp(2rem, 8dvh, 3.8rem);
   font-weight: 850;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -287,19 +291,19 @@ p {
   display: block;
 }
 
-.letter-button.with-hint .letter-text {
-  transform: translateY(-0.08em);
-}
-
 .letter-hint {
   position: absolute;
   right: 12px;
   bottom: 9px;
+  min-width: 2ch;
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 900;
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0;
+  line-height: 1;
   pointer-events: none;
+  text-align: right;
 }
 
 .controls {

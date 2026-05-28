@@ -135,7 +135,19 @@ function handleKeydown(event) {
 
   if (key === "backspace" || key === "delete") {
     event.preventDefault();
+    if (key === "backspace" && event.ctrlKey) {
+      clearWord(state);
+      render(state, actions);
+      return;
+    }
+
     actions.deleteLetter();
+    return;
+  }
+
+  if (key === "tab") {
+    event.preventDefault();
+    actions.shuffleLetters();
     return;
   }
 

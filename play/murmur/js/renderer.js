@@ -173,7 +173,6 @@ function renderLetters(state, actions) {
     button.dataset.letter = letter;
     button.querySelector(".letter-text").textContent = letter;
     button.disabled = state.gaveUp || Boolean(stats?.done);
-    button.classList.toggle("with-hint", showHints);
     let ariaLabel = `Add ${letter}, ${stats?.remaining ?? 0} words remaining`;
     if (state.gaveUp) {
       ariaLabel = `${letter}, game over`;
