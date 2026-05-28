@@ -21,6 +21,8 @@ const deleteHoldDelay = 450;
 let deleteHoldTimer = null;
 let suppressDeleteClick = false;
 
+deleteButton.style.setProperty("--delete-hold-delay", `${deleteHoldDelay}ms`);
+
 const actions = {
   addLetter(letter) {
     addLetter(state, letter);
@@ -155,6 +157,7 @@ function startDeleteHold() {
 
   cancelDeleteHold();
   suppressDeleteClick = false;
+  deleteButton.classList.add("is-holding");
   deleteHoldTimer = window.setTimeout(() => {
     deleteHoldTimer = null;
     suppressDeleteClick = true;
@@ -164,6 +167,8 @@ function startDeleteHold() {
 }
 
 function cancelDeleteHold() {
+  deleteButton.classList.remove("is-holding");
+
   if (!deleteHoldTimer) {
     return;
   }

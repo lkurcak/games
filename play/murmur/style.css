@@ -317,6 +317,41 @@ p {
   background: var(--button);
 }
 
+#delete-letter {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+#delete-letter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+  z-index: -1;
+}
+
+#delete-letter.is-holding::before {
+  animation: delete-hold-fill var(--delete-hold-delay, 450ms) linear forwards;
+}
+
+@keyframes delete-hold-fill {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #delete-letter.is-holding::before {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
 .plain-button,
 .forfeit-button {
   color: var(--muted);
