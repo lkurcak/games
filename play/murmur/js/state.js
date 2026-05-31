@@ -31,12 +31,7 @@ export function startPuzzle(state, puzzle) {
 }
 
 export function addLetter(state, letter) {
-  if (
-    state.answersRevealed ||
-    !state.puzzle ||
-    !state.puzzle.letters.includes(letter) ||
-    isLetterDone(state, letter)
-  ) {
+  if (!canAddLetter(state, letter)) {
     return;
   }
 
@@ -117,6 +112,17 @@ export function getFoundByLength(state) {
   return counts;
 }
 
+export function getRemainingByStart(state) {
+  const foundByStart = getFoundByStart(state);
+
+  return new Map(
+    (state.puzzle?.byStart ?? []).map((entry) => [
+      entry.letter,
+      Math.max(0, entry.total - (foundByStart.get(entry.letter) ?? 0)),
+    ]),
+  );
+}
+
 export function getRecentFoundWords(state, limit = 24) {
   return state.foundEntries.slice(-limit).reverse();
 }
@@ -139,4 +145,33 @@ export function hasFoundWord(state, word) {
 
 export function isLetterDone(state, letter) {
   return state.letterStats.some((entry) => entry.letter === letter && entry.done);
+}
+
+export function isFirstLetterUnavailable(state, letter) {
+  if (state.currentWord || getProgress(state).percent < 50) {
+    return false;
+  }
+
+  return getRemainingByStart(state).get(letter) === 0;
+}
+
+export function canAddLetter(state, letter) {
+  return (
+    !state.answersRevealed &&
+    Boolean(state.puzzle) &&
+    state.puzzle.letters.includes(letter) &&
+    !isLetterDone(state, letter) &&
+    !isFirstLetterUnavailable(state, letter)
+  );
+}
+
+function getFoundByStart(state) {
+  const counts = new Map();
+
+  for (const word of state.foundWords) {
+    const firstLetter = word[0];
+    counts.set(firstLetter, (counts.get(firstLetter) ?? 0) + 1);
+  }
+
+  return counts;
 }

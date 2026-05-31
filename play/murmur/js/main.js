@@ -1,11 +1,11 @@
 import {
   addLetter,
+  canAddLetter,
   clearWord,
   createState,
   deleteLetter,
   getProgress,
   hasFoundWord,
-  isLetterDone,
   markFound,
   revealAnswers,
   shuffleLetters,
@@ -157,7 +157,7 @@ function handleKeydown(event) {
     return;
   }
 
-  if (/^[a-z]$/.test(key) && state.puzzle.letters.includes(key) && !isLetterDone(state, key)) {
+  if (/^[a-z]$/.test(key) && canAddLetter(state, key)) {
     actions.addLetter(key);
   }
 }

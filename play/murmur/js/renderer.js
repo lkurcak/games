@@ -1,10 +1,13 @@
 import {
+  canAddLetter,
   getFoundByLength,
   getProgress,
   getRecentFoundWords,
+  getRemainingByStart,
   getSortedBonusWords,
   getSortedFoundWords,
   getSortedMissedWords,
+  isFirstLetterUnavailable,
 } from "./state.js";
 import { formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
 
@@ -123,13 +126,7 @@ function renderLetters(state, actions) {
   const progress = getProgress(state);
   const showHints = progress.percent >= 50;
   const statsByLetter = new Map(state.letterStats.map((entry) => [entry.letter, entry]));
-  const foundByStart = getFoundByStart(state);
-  const startsByLetter = new Map(
-    (state.puzzle.byStart ?? []).map((entry) => [
-      entry.letter,
-      Math.max(0, entry.total - (foundByStart.get(entry.letter) ?? 0)),
-    ]),
-  );
+  const startsByLetter = getRemainingByStart(state);
 
   // Rebuild buttons only when a new puzzle is started (different letter set).
   if (letterCache.key !== puzzleKey) {
@@ -172,15 +169,19 @@ function renderLetters(state, actions) {
     const letter = letters[i];
     const stats = statsByLetter.get(letter);
     const startCount = startsByLetter.get(letter) ?? 0;
+    const letterDone = Boolean(stats?.done);
+    const firstLetterUnavailable = isFirstLetterUnavailable(state, letter);
 
     button.dataset.letter = letter;
     button.querySelector(".letter-text").textContent = letter;
-    button.disabled = state.answersRevealed || Boolean(stats?.done);
+    button.disabled = !canAddLetter(state, letter);
     let ariaLabel = `Add ${letter}, ${stats?.remaining ?? 0} words remaining`;
     if (state.answersRevealed) {
       ariaLabel = `${letter}, answers revealed`;
-    } else if (stats?.done) {
+    } else if (letterDone) {
       ariaLabel = `${letter}, completed`;
+    } else if (firstLetterUnavailable) {
+      ariaLabel = `${letter}, no remaining words start with ${letter}`;
     }
     button.setAttribute("aria-label", ariaLabel);
 
@@ -254,17 +255,6 @@ function createRecentWordNodes(entries, letters) {
   });
 
   return nodes;
-}
-
-function getFoundByStart(state) {
-  const counts = new Map();
-
-  for (const word of state.foundWords) {
-    const firstLetter = word[0];
-    counts.set(firstLetter, (counts.get(firstLetter) ?? 0) + 1);
-  }
-
-  return counts;
 }
 
 function syncDialog(dialog, shouldBeOpen) {
