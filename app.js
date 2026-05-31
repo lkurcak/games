@@ -1,6 +1,7 @@
 const grid = document.querySelector("#games-grid");
 const status = document.querySelector("#games-status");
 
+registerServiceWorker();
 loadGames();
 
 async function loadGames() {
@@ -86,4 +87,19 @@ function createEmptyState(message) {
   empty.className = "empty-state";
   empty.textContent = message;
   return empty;
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  window.addEventListener("load", () => {
+    const scriptUrl = new URL("./sw.js", import.meta.url);
+    const scopeUrl = new URL("./", import.meta.url);
+
+    navigator.serviceWorker
+      .register(scriptUrl, { scope: scopeUrl })
+      .catch((error) => console.warn("Could not register service worker", error));
+  });
 }

@@ -1,13 +1,13 @@
 {
-  "name": "Murmur",
-  "short_name": "Murmur",
-  "description": "A quiet six-letter word hunt.",
+  "name": "Wizard's Dungeon",
+  "short_name": "Wizard",
+  "description": "A small dungeon crawler that runs in the browser.",
   "id": ".",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
-  "background_color": "#f5f1e8",
-  "theme_color": "#f5f1e8",
+  "background_color": "#030303",
+  "theme_color": "#030303",
   "icons": [
     {
       "src": "./favicon.svg",

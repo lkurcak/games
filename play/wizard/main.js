@@ -74,6 +74,8 @@ let game = null;
 let snapshot = null;
 let pointerStart = null;
 
+registerServiceWorker();
+
 const sprites = Object.fromEntries(
   Object.entries(spriteSources).map(([name, src]) => [name, createSprite(src)]),
 );
@@ -563,4 +565,19 @@ function circle(x, y, radius, color) {
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
   ctx.fill();
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  window.addEventListener("load", () => {
+    const scriptUrl = new URL("./sw.js", import.meta.url);
+    const scopeUrl = new URL("./", import.meta.url);
+
+    navigator.serviceWorker
+      .register(scriptUrl, { scope: scopeUrl })
+      .catch((error) => console.warn("Could not register service worker", error));
+  });
 }

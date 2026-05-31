@@ -42,6 +42,18 @@ Add an entry to `games.json`:
 
 Required fields are `slug` and `title`. If `url` is omitted, the launcher uses `play/<slug>/`. Put launcher icons in `assets/icons/<slug>.*` as square PNG or SVG images. The launcher displays the full square image inside a round icon well, and `iconBackground` accepts a 6-digit hex color for that well. The launcher reads `icon` first and falls back to `cover` for older entries.
 
+## Offline Support
+
+The hub registers `sw.js` at the repository root. It precaches the launcher and runtime-caches visited game assets, so the launcher works offline after the first successful visit.
+
+Games that should be independently installable/offline should also ship their own scoped PWA files inside `play/<slug>/`:
+
+- `manifest.webmanifest`
+- `sw.js`
+- a service worker registration from the game's entry script
+
+Keep each game service worker at `play/<slug>/sw.js` with scope `./` so it controls only that game. Keep each game's precache list in sync with the files needed to launch offline, especially generated WASM packages and image/audio assets.
+
 ## Enable GitHub Pages
 
 In this repository:
