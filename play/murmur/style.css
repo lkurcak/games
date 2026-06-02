@@ -283,7 +283,8 @@ p {
 .submit-button:active,
 .reveal-button:active,
 .found-summary:active,
-.icon-button:active {
+.icon-button:active,
+.report-word-button:active {
   transform: translateY(1px);
 }
 
@@ -543,9 +544,50 @@ p {
 .found-words li {
   break-inside: avoid;
   padding: 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.45;
+}
+
+.word-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.report-word-button {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+  background: color-mix(in srgb, var(--button) 74%, transparent);
+  color: var(--muted);
+}
+
+.report-word-button:not(:disabled):hover,
+.report-word-button:not(:disabled):focus-visible {
+  color: var(--danger);
+}
+
+.report-word-button:disabled {
+  color: var(--success);
+  background: var(--button-subtle);
+}
+
+.report-word-button svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
 }
 
 .golden-word {
@@ -612,6 +654,40 @@ p {
 
 .result-card {
   text-align: center;
+}
+
+.report-card {
+  grid-template-rows: auto auto auto;
+}
+
+.report-body {
+  display: grid;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+#report-word {
+  color: var(--text);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.report-error {
+  min-height: 1.35em;
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.report-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.report-actions .submit-button {
+  min-width: 0;
 }
 
 .result-body {

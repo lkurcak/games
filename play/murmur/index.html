@@ -145,6 +145,32 @@
       </div>
     </dialog>
 
+    <dialog id="report-dialog" class="modal report-modal">
+      <div class="modal-card report-card">
+        <div class="modal-header">
+          <h2>Report Word</h2>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close report">&times;</button>
+        </div>
+        <div class="report-body">
+          <p>
+            Report <strong id="report-word"></strong> as a word that might not belong in the main
+            answer list.
+          </p>
+          <p>
+            This sends the word and puzzle letters to the Murmur server for review. It does not
+            remove the word from your current game.
+          </p>
+          <p id="report-error" class="report-error" role="status" aria-live="polite"></p>
+        </div>
+        <div class="report-actions">
+          <button id="cancel-report-word" class="plain-button" type="button" data-close-modal>
+            Cancel
+          </button>
+          <button id="confirm-report-word" class="submit-button" type="button">Report word</button>
+        </div>
+      </div>
+    </dialog>
+
     <script type="module" src="./js/main.js"></script>
   </body>
 </html>

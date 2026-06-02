@@ -27,6 +27,10 @@ const elements = {
   infoDialog: document.querySelector("#info-dialog"),
   victoryDialog: document.querySelector("#victory-dialog"),
   answersDialog: document.querySelector("#answers-dialog"),
+  reportDialog: document.querySelector("#report-dialog"),
+  reportWord: document.querySelector("#report-word"),
+  reportError: document.querySelector("#report-error"),
+  reportConfirm: document.querySelector("#confirm-report-word"),
   answersProgressRing: document.querySelector("#answers-progress-ring"),
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
@@ -41,13 +45,15 @@ export function render(state, actions) {
   renderLetters(state, actions);
   renderControls(state);
   renderMessage(state);
-  renderFoundWords(state);
+  renderFoundWords(state, actions);
   renderAnswersModal(state);
+  renderReportDialog(state);
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
   syncDialog(elements.victoryDialog, state.activeModal === "victory");
   syncDialog(elements.answersDialog, state.activeModal === "answers");
+  syncDialog(elements.reportDialog, state.activeModal === "report");
 }
 
 function renderProgress(state) {
@@ -194,7 +200,7 @@ function renderMessage(state) {
   elements.message.className = `message ${state.messageKind}`.trim();
 }
 
-function renderFoundWords(state) {
+function renderFoundWords(state, actions) {
   const recentWords = getRecentFoundWords(state);
   const regularWords = getSortedFoundWords(state);
   const missedWords = getSortedMissedWords(state);
@@ -209,35 +215,97 @@ function renderFoundWords(state) {
   elements.recentWords.replaceChildren(
     ...createRecentWordNodes(recentWords, state.puzzle?.letters ?? ""),
   );
-  renderWordList(elements.foundWords, regularItems, state.puzzle?.letters ?? "");
+  renderWordList(
+    elements.foundWords,
+    regularItems,
+    state.puzzle?.letters ?? "",
+    state,
+    actions,
+    true,
+  );
   elements.foundWords.classList.toggle("hide-empty-message", bonusWords.length > 0);
   elements.bonusFoundSection.hidden = bonusWords.length === 0;
   renderWordList(
     elements.bonusFoundWords,
     bonusWords.map((word) => ({ word, missed: false })),
     state.puzzle?.letters ?? "",
+    state,
+    actions,
+    false,
   );
 }
 
-function renderWordList(element, words, letters) {
+function renderWordList(element, words, letters, state, actions, allowReporting) {
   const rows = Math.max(1, Math.ceil(words.length / 2));
   element.style.gridTemplateRows = `repeat(${rows}, auto)`;
-  element.replaceChildren(...words.map((word) => createWordItem(word, letters)));
+  element.replaceChildren(
+    ...words.map((word) => createWordItem(word, letters, state, actions, allowReporting)),
+  );
 }
 
-function createWordItem(entry, letters) {
+function createWordItem(entry, letters, state, actions, allowReporting) {
   const { word, missed } = entry;
   const item = document.createElement("li");
-  item.textContent = formatWord(word);
+  const text = document.createElement("span");
+
+  text.className = "word-text";
+  text.textContent = formatWord(word);
   item.classList.toggle("golden-word", wordUsesEveryLetter(word, letters));
   item.classList.toggle("missed-word", missed);
+  item.append(text);
+
+  if (allowReporting && state.answersRevealed) {
+    item.append(createReportButton(word, state, actions));
+  }
+
   return item;
+}
+
+function createReportButton(word, state, actions) {
+  const button = document.createElement("button");
+  const reported = state.reportedWords.has(word);
+  const labelWord = formatWord(word);
+
+  button.className = "report-word-button";
+  button.type = "button";
+  button.disabled = reported || state.reportSubmitting;
+  button.title = reported ? "Already reported" : "Report word";
+  button.setAttribute(
+    "aria-label",
+    reported ? `${labelWord} already reported` : `Report ${labelWord}`,
+  );
+  button.append(createReportIcon());
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    actions.openReport(word);
+  });
+
+  return button;
+}
+
+function createReportIcon() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  path.setAttribute("d", "M6 20V5m0 0c4-2 7 2 12 0v10c-5 2-8-2-12 0");
+  svg.append(path);
+
+  return svg;
 }
 
 function renderAnswersModal(state) {
   const progress = getProgress(state);
 
   elements.answersProgressRing.style.strokeDasharray = `${progress.percent} 100`;
+}
+
+function renderReportDialog(state) {
+  elements.reportWord.textContent = state.reportWord ? formatWord(state.reportWord) : "";
+  elements.reportError.textContent = state.reportError;
+  elements.reportConfirm.disabled = state.reportSubmitting;
+  elements.reportConfirm.textContent = state.reportSubmitting ? "Sending..." : "Report word";
 }
 
 function createRecentWordNodes(entries, letters) {

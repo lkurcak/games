@@ -8,6 +8,10 @@ export function createState() {
     foundEntries: [],
     letterStats: [],
     activeModal: null,
+    reportWord: null,
+    reportSubmitting: false,
+    reportError: "",
+    reportedWords: new Set(),
     victoryShown: false,
     answersRevealed: false,
     message: "Loading dictionary...",
@@ -24,6 +28,10 @@ export function startPuzzle(state, puzzle) {
   state.foundEntries = [];
   state.letterStats = [];
   state.activeModal = null;
+  state.reportWord = null;
+  state.reportSubmitting = false;
+  state.reportError = "";
+  state.reportedWords = new Set();
   state.victoryShown = false;
   state.answersRevealed = false;
   state.message = "";
@@ -92,6 +100,30 @@ export function revealAnswers(state, answers) {
   state.activeModal = "answers";
   state.message = "Answers revealed";
   state.messageKind = "note";
+}
+
+export function openReport(state, word) {
+  if (!state.answersRevealed || state.reportedWords.has(word) || state.reportSubmitting) {
+    return false;
+  }
+
+  state.reportWord = word;
+  state.reportError = "";
+  state.activeModal = "report";
+  return true;
+}
+
+export function clearReport(state) {
+  state.reportWord = null;
+  state.reportError = "";
+}
+
+export function setReportedWords(state, words) {
+  state.reportedWords = new Set(words);
+}
+
+export function markReported(state, word) {
+  state.reportedWords.add(word);
 }
 
 export function getProgress(state) {

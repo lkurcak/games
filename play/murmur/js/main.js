@@ -2,12 +2,16 @@ import {
   addLetter,
   canAddLetter,
   clearWord,
+  clearReport,
   createState,
   deleteLetter,
   getProgress,
   hasFoundWord,
   markFound,
+  markReported,
+  openReport as openReportState,
   revealAnswers,
+  setReportedWords,
   shuffleLetters,
   startPuzzle,
 } from "./state.js";
@@ -18,6 +22,7 @@ const state = createState();
 let wasm = null;
 const deleteButton = document.querySelector("#delete-letter");
 const deleteHoldDelay = 450;
+const reportStoragePrefix = "murmur:reported";
 let deleteHoldTimer = null;
 let suppressDeleteClick = false;
 
@@ -56,7 +61,23 @@ const actions = {
   revealAnswers() {
     revealAllAnswers();
   },
+  openReport(word) {
+    if (openReportState(state, word)) {
+      render(state, actions);
+    }
+  },
+  confirmReport() {
+    submitWordReport();
+  },
   closeModal() {
+    if (state.reportSubmitting) {
+      return;
+    }
+
+    if (state.activeModal === "report") {
+      clearReport(state);
+    }
+
     state.activeModal = null;
     render(state, actions);
   },
@@ -81,6 +102,7 @@ document.querySelector("#progress-toggle").addEventListener("click", actions.ope
 document.querySelector("#reveal-answers").addEventListener("click", actions.revealAnswers);
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
+document.querySelector("#confirm-report-word").addEventListener("click", actions.confirmReport);
 document.querySelector("#info-prev").addEventListener("click", () => scrollInfoSlide(-1));
 document.querySelector("#info-next").addEventListener("click", () => scrollInfoSlide(1));
 document.querySelectorAll("[data-close-modal]").forEach((button) => {
@@ -112,6 +134,7 @@ try {
   wasm = await import("../pkg/game_wasm.js");
   await wasm.default();
   startPuzzle(state, wasm.generate_puzzle());
+  setReportedWords(state, loadReportedWords(state.puzzle.letters));
   refreshLetterStats();
 } catch (error) {
   console.error(error);
@@ -244,6 +267,48 @@ function revealAllAnswers() {
   render(state, actions);
 }
 
+async function submitWordReport() {
+  if (!state.puzzle || !state.reportWord || state.reportSubmitting) {
+    return;
+  }
+
+  const word = state.reportWord;
+  state.reportSubmitting = true;
+  state.reportError = "";
+  render(state, actions);
+
+  try {
+    const response = await fetch(apiUrl("/api/word-flags"), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        letters: state.puzzle.letters,
+        word,
+        context: "revealed",
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await reportErrorMessage(response));
+    }
+
+    markReported(state, word);
+    saveReportedWord(state.puzzle.letters, word);
+    state.activeModal = null;
+    state.reportWord = null;
+    state.message = `Reported ${formatWord(word)}`;
+    state.messageKind = "note";
+  } catch (error) {
+    console.warn("Could not report word", error);
+    state.reportError = error instanceof Error ? error.message : "Could not send the report.";
+  } finally {
+    state.reportSubmitting = false;
+    render(state, actions);
+  }
+}
+
 function refreshLetterStats() {
   if (!wasm || !state.puzzle) {
     state.letterStats = [];
@@ -260,6 +325,56 @@ function showVictoryIfComplete() {
 
   state.victoryShown = true;
   state.activeModal = "victory";
+}
+
+function apiUrl(path) {
+  const baseUrl = String(globalThis.MURMUR_API_BASE_URL ?? "");
+  if (!baseUrl) {
+    return path;
+  }
+
+  return `${baseUrl.replace(/\/$/, "")}${path}`;
+}
+
+async function reportErrorMessage(response) {
+  try {
+    const payload = await response.json();
+    if (typeof payload?.error === "string") {
+      return payload.error;
+    }
+  } catch (_error) {
+    // Fall back to the HTTP status when the server did not return JSON.
+  }
+
+  return response.statusText || `Report failed with status ${response.status}`;
+}
+
+function reportStorageKey(letters) {
+  return `${reportStoragePrefix}:${canonicalLetters(letters)}`;
+}
+
+function canonicalLetters(letters) {
+  return [...letters.toLowerCase()].sort().join("");
+}
+
+function loadReportedWords(letters) {
+  try {
+    const value = localStorage.getItem(reportStorageKey(letters));
+    const words = JSON.parse(value);
+    return Array.isArray(words) ? words.filter((word) => typeof word === "string") : [];
+  } catch (_error) {
+    return [];
+  }
+}
+
+function saveReportedWord(letters, word) {
+  try {
+    const words = new Set(loadReportedWords(letters));
+    words.add(word);
+    localStorage.setItem(reportStorageKey(letters), JSON.stringify([...words].sort()));
+  } catch (_error) {
+    // Reporting should still succeed if localStorage is unavailable.
+  }
 }
 
 function scrollInfoSlide(direction) {
