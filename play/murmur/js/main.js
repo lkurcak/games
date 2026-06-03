@@ -77,6 +77,9 @@ const actions = {
 
     if (state.activeModal === "report") {
       clearReport(state);
+      state.activeModal = "found";
+      render(state, actions);
+      return;
     }
 
     state.activeModal = null;
@@ -297,7 +300,7 @@ async function submitWordReport() {
 
     markReported(state, word);
     saveReportedWord(state.puzzle.letters, word);
-    state.activeModal = null;
+    state.activeModal = "found";
     state.reportWord = null;
     state.message = `Reported ${formatWord(word)}`;
     state.messageKind = "note";
