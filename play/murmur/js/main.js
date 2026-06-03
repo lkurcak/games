@@ -22,6 +22,7 @@ const state = createState();
 let wasm = null;
 const deleteButton = document.querySelector("#delete-letter");
 const deleteHoldDelay = 450;
+const hostedApiBaseUrl = "https://murmur.moojtube.com";
 const reportStoragePrefix = "murmur:reported";
 let deleteHoldTimer = null;
 let suppressDeleteClick = false;
@@ -328,12 +329,27 @@ function showVictoryIfComplete() {
 }
 
 function apiUrl(path) {
-  const baseUrl = String(globalThis.MURMUR_API_BASE_URL ?? "");
+  const baseUrl = String(globalThis.MURMUR_API_BASE_URL ?? defaultApiBaseUrl());
   if (!baseUrl) {
     return path;
   }
 
   return `${baseUrl.replace(/\/$/, "")}${path}`;
+}
+
+function defaultApiBaseUrl() {
+  const hostname = globalThis.location?.hostname ?? "";
+  if (
+    !hostname ||
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname === "murmur.moojtube.com"
+  ) {
+    return "";
+  }
+
+  return hostedApiBaseUrl;
 }
 
 async function reportErrorMessage(response) {
