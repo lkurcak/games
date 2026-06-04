@@ -5,6 +5,7 @@ import {
   clearReport,
   createState,
   deleteLetter,
+  getFoundWeight,
   getProgress,
   hasFoundWord,
   markFound,
@@ -323,7 +324,11 @@ function refreshLetterStats() {
 }
 
 function showVictoryIfComplete() {
-  if (state.victoryShown || !state.puzzle || state.foundWords.size !== state.puzzle.total) {
+  if (
+    state.victoryShown ||
+    !state.puzzle ||
+    getFoundWeight(state) !== state.puzzle.totalWeight
+  ) {
     return;
   }
 

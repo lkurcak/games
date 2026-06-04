@@ -126,22 +126,38 @@ export function markReported(state, word) {
   state.reportedWords.add(word);
 }
 
+function getWordWeight(state, length) {
+  const offset = state.puzzle?.wordWeightOffset ?? 0;
+  return Math.max(1, length + offset);
+}
+
+export function getFoundWeight(state) {
+  let weight = 0;
+
+  for (const word of state.foundWords) {
+    weight += getWordWeight(state, word.length);
+  }
+
+  return weight;
+}
+
 export function getProgress(state) {
-  const total = state.puzzle?.total ?? 0;
-  const found = state.foundWords.size;
+  const total = state.puzzle?.totalWeight ?? 0;
+  const found = getFoundWeight(state);
   const percent = total === 0 ? 0 : Math.floor((found / total) * 100);
 
   return { found, total, percent };
 }
 
-export function getFoundByLength(state) {
-  const counts = new Map();
+export function getFoundWeightByLength(state) {
+  const weights = new Map();
 
   for (const word of state.foundWords) {
-    counts.set(word.length, (counts.get(word.length) ?? 0) + 1);
+    const length = word.length;
+    weights.set(length, (weights.get(length) ?? 0) + getWordWeight(state, length));
   }
 
-  return counts;
+  return weights;
 }
 
 export function getRemainingByStart(state) {
