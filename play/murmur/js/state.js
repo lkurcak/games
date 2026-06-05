@@ -149,15 +149,15 @@ export function getProgress(state) {
   return { found, total, percent };
 }
 
-export function getFoundWeightByLength(state) {
-  const weights = new Map();
+export function getFoundCountByLength(state) {
+  const counts = new Map();
 
   for (const word of state.foundWords) {
     const length = word.length;
-    weights.set(length, (weights.get(length) ?? 0) + getWordWeight(state, length));
+    counts.set(length, (counts.get(length) ?? 0) + 1);
   }
 
-  return weights;
+  return counts;
 }
 
 export function getRemainingByStart(state) {

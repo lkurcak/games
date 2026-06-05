@@ -1,6 +1,6 @@
 import {
   canAddLetter,
-  getFoundWeightByLength,
+  getFoundCountByLength,
   getProgress,
   getRecentFoundWords,
   getRemainingByStart,
@@ -72,7 +72,7 @@ function renderProgress(state) {
     return;
   }
 
-  const foundByLength = getFoundWeightByLength(state);
+  const foundByLength = getFoundCountByLength(state);
   const rows = state.puzzle.byLength.map((entry) => {
     const found = foundByLength.get(entry.length) ?? 0;
     const row = document.createElement("div");
@@ -80,7 +80,7 @@ function renderProgress(state) {
     const bar = document.createElement("span");
     const fill = document.createElement("span");
     const count = document.createElement("span");
-    const percent = entry.totalWeight === 0 ? 0 : (found / entry.totalWeight) * 100;
+    const percent = entry.total === 0 ? 0 : (found / entry.total) * 100;
 
     row.className = "progress-line";
     label.textContent = `${entry.length} letters`;
@@ -88,7 +88,7 @@ function renderProgress(state) {
     fill.className = "bar-fill";
     fill.style.width = `${percent}%`;
     count.className = "progress-count";
-    count.textContent = `${found}/${entry.totalWeight}`;
+    count.textContent = `${found}/${entry.total}`;
 
     bar.append(fill);
     row.append(label, bar, count);
