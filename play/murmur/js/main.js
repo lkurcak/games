@@ -17,9 +17,22 @@ import {
   startPuzzle,
 } from "./state.js";
 import { render } from "./renderer.js";
-import { describeCheckFailure, formatWord } from "./utils.js";
+import { describeCheckFailure, formatWord, wordUsesEveryLetter } from "./utils.js";
+import {
+  createPuzzleTracker,
+  evaluateInOrder,
+  evaluateProgress,
+  evaluateVictory,
+  evaluateWordFound,
+  loadAchievementData,
+  saveAchievementData,
+  showAchievementToast,
+} from "./achievements.js";
 
 const state = createState();
+state.achievementData = loadAchievementData();
+state.achievementTracker = createPuzzleTracker();
+
 let wasm = null;
 const deleteButton = document.querySelector("#delete-letter");
 const deleteHoldDelay = 450;
@@ -58,6 +71,10 @@ const actions = {
   },
   openInfo() {
     state.activeModal = "info";
+    render(state, actions);
+  },
+  openAchievements() {
+    state.activeModal = "achievements";
     render(state, actions);
   },
   revealAnswers() {
@@ -113,6 +130,7 @@ document.querySelector("#progress-toggle").addEventListener("click", actions.ope
 document.querySelector("#reveal-answers").addEventListener("click", actions.revealAnswers);
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
+document.querySelector("#achievements-toggle").addEventListener("click", actions.openAchievements);
 document.querySelector("#confirm-report-word").addEventListener("click", actions.confirmReport);
 document.querySelector("#lookup-definition").addEventListener("click", actions.lookupDefinition);
 document.querySelector("#info-prev").addEventListener("click", () => scrollInfoSlide(-1));
@@ -146,6 +164,7 @@ try {
   wasm = await import("../pkg/game_wasm.js");
   await wasm.default();
   startPuzzle(state, wasm.generate_puzzle());
+  state.achievementTracker = createPuzzleTracker();
   state.startTime = Date.now();
   setReportedWords(state, loadReportedWords(state.puzzle.letters));
   refreshLetterStats();
@@ -250,6 +269,39 @@ function submitCurrentWord() {
   if (result.valid) {
     markFound(state, result.word, result.bonus);
     refreshLetterStats();
+
+    const isGolden = wordUsesEveryLetter(result.word, state.puzzle.letters);
+    const isFirstWord = state.foundEntries.length === 1;
+    const wordUnlocks = evaluateWordFound(
+      state.achievementData,
+      state.achievementTracker,
+      result.word,
+      result.bonus,
+      isFirstWord,
+      isGolden,
+    );
+
+    const progress = getProgress(state);
+    const progressUnlocks = evaluateProgress(
+      state.achievementData,
+      state.achievementTracker,
+      progress.percent,
+    );
+
+    const inOrderUnlocks = evaluateInOrder(
+      state.achievementData,
+      state.achievementTracker,
+      state,
+    );
+
+    const allUnlocks = [...wordUnlocks, ...progressUnlocks, ...inOrderUnlocks];
+    if (allUnlocks.length > 0) {
+      saveAchievementData(state.achievementData);
+      for (const { achievement, tier } of allUnlocks) {
+        showAchievementToast(achievement, tier);
+      }
+    }
+
     state.message = result.bonus
       ? `Bonus ${formatWord(result.word)}`
       : `Found ${formatWord(result.word)}`;
@@ -344,6 +396,18 @@ function showVictoryIfComplete() {
   state.victoryShown = true;
   state.elapsedMs = Date.now() - state.startTime;
   state.activeModal = "victory";
+
+  const victoryUnlocks = evaluateVictory(
+    state.achievementData,
+    state.achievementTracker,
+    state.elapsedMs,
+  );
+  if (victoryUnlocks.length > 0) {
+    saveAchievementData(state.achievementData);
+    for (const { achievement, tier } of victoryUnlocks) {
+      showAchievementToast(achievement, tier);
+    }
+  }
 }
 
 function apiUrl(path) {

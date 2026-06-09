@@ -126,6 +126,11 @@ p {
   gap: 10px;
 }
 
+.top-row-buttons {
+  display: flex;
+  gap: 10px;
+}
+
 .progress-button {
   min-width: 0;
   min-height: 44px;
@@ -731,6 +736,151 @@ p {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
+}
+
+.achievements-list {
+  display: grid;
+  gap: 10px;
+}
+
+.achievement-item {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+  gap: 6px;
+  background: var(--button);
+}
+
+.achievement-item.locked {
+  opacity: 0.55;
+  background: var(--button-subtle);
+}
+
+.achievement-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.achievement-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.achievement-stars {
+  display: flex;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.achievement-star {
+  color: var(--placeholder);
+}
+
+.achievement-star.filled {
+  color: var(--gold);
+}
+
+.achievement-desc {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.achievement-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.achievement-toasts {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, calc(100vw - 28px));
+  pointer-events: none;
+}
+
+.achievement-toast {
+  padding: 12px 16px;
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  animation: toast-in 300ms ease;
+  pointer-events: auto;
+}
+
+.achievement-toast.exiting {
+  animation: toast-out 300ms ease forwards;
+}
+
+.toast-stars {
+  color: var(--gold);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toast-body strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.toast-body span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast {
+    animation: none;
+  }
+
+  .achievement-toast.exiting {
+    animation: none;
+    opacity: 0;
+  }
 }
 
 @media (max-height: 620px) {

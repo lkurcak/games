@@ -18,6 +18,8 @@ export function createState() {
     elapsedMs: 0,
     message: "Loading dictionary...",
     messageKind: "",
+    achievementData: null,
+    achievementTracker: null,
   };
 }
 
@@ -40,6 +42,7 @@ export function startPuzzle(state, puzzle) {
   state.elapsedMs = 0;
   state.message = "";
   state.messageKind = "";
+  state.achievementTracker = null;
 }
 
 export function addLetter(state, letter) {

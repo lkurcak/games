@@ -26,7 +26,10 @@
               <span id="progress-fill" class="progress-fill"></span>
             </span>
           </button>
-          <button id="info-toggle" class="icon-button" type="button" aria-label="How to play">?</button>
+          <div class="top-row-buttons">
+            <button id="achievements-toggle" class="icon-button" type="button" aria-label="Achievements">★</button>
+            <button id="info-toggle" class="icon-button" type="button" aria-label="How to play">?</button>
+          </div>
         </div>
 
         <div class="play-area">
@@ -173,6 +176,16 @@
           <button id="lookup-definition" class="plain-button" type="button">Look up definition</button>
           <button id="confirm-report-word" class="submit-button" type="button">Report word</button>
         </div>
+      </div>
+    </dialog>
+
+    <dialog id="achievements-dialog" class="modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Achievements</h2>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close achievements">&times;</button>
+        </div>
+        <div id="achievements-list" class="achievements-list modal-scroll"></div>
       </div>
     </dialog>
 

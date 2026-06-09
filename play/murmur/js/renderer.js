@@ -10,6 +10,7 @@ import {
   isFirstLetterUnavailable,
 } from "./state.js";
 import { formatTime, formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
+import { getAchievementList } from "./achievements.js";
 
 const elements = {
   progressDialog: document.querySelector("#progress-dialog"),
@@ -39,6 +40,8 @@ const elements = {
   bonusFoundWords: document.querySelector("#bonus-found-words"),
   victoryTime: document.querySelector("#victory-time"),
   answersTime: document.querySelector("#answers-time"),
+  achievementsDialog: document.querySelector("#achievements-dialog"),
+  achievementsList: document.querySelector("#achievements-list"),
 };
 
 export function render(state, actions) {
@@ -51,12 +54,14 @@ export function render(state, actions) {
   renderAnswersModal(state);
   renderWordDetailDialog(state);
   renderTime(state);
+  renderAchievementsModal(state);
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
   syncDialog(elements.victoryDialog, state.activeModal === "victory");
   syncDialog(elements.answersDialog, state.activeModal === "answers");
   syncDialog(elements.wordDetailDialog, state.activeModal === "word-detail");
+  syncDialog(elements.achievementsDialog, state.activeModal === "achievements");
 }
 
 function renderProgress(state) {
@@ -296,6 +301,60 @@ function createRecentWordNodes(entries, letters) {
   });
 
   return nodes;
+}
+
+function renderAchievementsModal(state) {
+  if (!elements.achievementsList || !state.achievementData) {
+    return;
+  }
+
+  const items = getAchievementList(state.achievementData);
+
+  elements.achievementsList.replaceChildren(
+    ...items.map((item) => {
+      const el = document.createElement("div");
+      el.className = `achievement-item ${item.locked ? "locked" : ""}`;
+
+      const header = document.createElement("div");
+      header.className = "achievement-header";
+
+      const name = document.createElement("span");
+      name.className = "achievement-name";
+      name.textContent = item.locked ? "???" : item.achievement.name;
+
+      const stars = document.createElement("span");
+      stars.className = "achievement-stars";
+
+      const totalStars = item.achievement.type === "tiered" ? item.achievement.tiers.length : 6;
+      const filled = item.achievement.type === "tiered" ? item.currentTier + 1 : (item.locked ? 0 : 1);
+      for (let i = 0; i < totalStars; i++) {
+        const star = document.createElement("span");
+        star.className = `achievement-star ${i < filled ? "filled" : ""}`;
+        star.textContent = "★";
+        stars.append(star);
+      }
+
+      header.append(name, stars);
+
+      const desc = document.createElement("p");
+      desc.className = item.locked ? "achievement-hint" : "achievement-desc";
+      desc.textContent = item.locked
+        ? item.achievement.hint
+        : item.achievement.description;
+
+      if (
+        !item.locked &&
+        item.achievement.type === "tiered" &&
+        item.nextTierIndex !== null
+      ) {
+        const remaining = Math.max(0, item.nextTierCount - item.currentCount);
+        desc.textContent += ` — ${remaining} more for next star`;
+      }
+
+      el.append(header, desc);
+      return el;
+    }),
+  );
 }
 
 function syncDialog(dialog, shouldBeOpen) {
