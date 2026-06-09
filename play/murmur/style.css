@@ -551,43 +551,18 @@ p {
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.45;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.found-words li:hover {
+  background: var(--soft);
 }
 
 .word-text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.report-word-button {
-  flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
-  background: color-mix(in srgb, var(--button) 74%, transparent);
-  color: var(--muted);
-}
-
-.report-word-button:not(:disabled):hover,
-.report-word-button:not(:disabled):focus-visible {
-  color: var(--danger);
-}
-
-.report-word-button:disabled {
-  color: var(--success);
-  background: var(--button-subtle);
-}
-
-.report-word-button svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2.2;
 }
 
 .golden-word {
@@ -656,11 +631,11 @@ p {
   text-align: center;
 }
 
-.report-card {
+.word-detail-card {
   grid-template-rows: auto auto auto;
 }
 
-.report-body {
+.word-detail-body {
   display: grid;
   gap: 10px;
   color: var(--muted);
@@ -668,25 +643,25 @@ p {
   line-height: 1.45;
 }
 
-#report-word {
+#word-detail-word {
   color: var(--text);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
-.report-error {
+.word-detail-error {
   min-height: 1.35em;
   color: var(--danger);
   font-weight: 800;
 }
 
-.report-actions {
+.word-detail-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
 }
 
-.report-actions .submit-button {
+.word-detail-actions .submit-button {
   min-width: 0;
 }
 
@@ -741,6 +716,23 @@ p {
   color: var(--muted);
 }
 
+.time-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-display svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
 @media (max-height: 620px) {
   .game-panel {
     gap: 8px;
@@ -764,5 +756,59 @@ p {
 
   .submit-button {
     min-width: 108px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-panel {
+    gap: 6px;
+  }
+
+  .play-area {
+    grid-template-rows: 20px auto minmax(120px, 1fr) auto;
+    gap: 6px;
+  }
+
+  .letter-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: 1fr;
+    gap: 6px;
+  }
+
+  .letter-button {
+    font-size: clamp(1.6rem, 6dvh, 2.8rem);
+  }
+
+  .current-word {
+    min-height: 44px;
+    font-size: clamp(1.1rem, 4dvh, 1.8rem);
+  }
+
+  .message {
+    height: 20px;
+    font-size: 0.85rem;
+  }
+
+  .progress-button,
+  .plain-button,
+  .submit-button,
+  .icon-button {
+    min-height: 36px;
+  }
+
+  .submit-button {
+    min-width: 90px;
+  }
+
+  .found-summary {
+    height: 36px;
+  }
+
+  .modal {
+    max-height: 85dvh;
+  }
+
+  .modal-card {
+    max-height: 85dvh;
   }
 }

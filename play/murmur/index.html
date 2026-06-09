@@ -124,6 +124,13 @@
           </svg>
           <h3>You cleared the board.</h3>
           <p>Every answer found. Nicely done.</p>
+          <p class="time-display">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <span id="victory-time"></span>
+          </p>
         </div>
       </div>
     </dialog>
@@ -142,31 +149,28 @@
           </svg>
           <h3>Remaining answers shown.</h3>
           <p>Missed words are marked red.</p>
+          <p class="time-display">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" />
+              <path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <span id="answers-time"></span>
+          </p>
         </div>
       </div>
     </dialog>
 
-    <dialog id="report-dialog" class="modal report-modal">
-      <div class="modal-card report-card">
+    <dialog id="word-detail-dialog" class="modal word-detail-modal">
+      <div class="modal-card word-detail-card">
         <div class="modal-header">
-          <h2>Report Word</h2>
-          <button class="modal-close" type="button" data-close-modal aria-label="Close report">&times;</button>
+          <h2 id="word-detail-word"></h2>
+          <button class="modal-close" type="button" data-close-modal aria-label="Close word detail">&times;</button>
         </div>
-        <div class="report-body">
-          <p>
-            Report <strong id="report-word"></strong> as a word that might not belong in the main
-            answer list.
-          </p>
-          <p>
-            This sends the word and puzzle letters to the Murmur server for review. It does not
-            remove the word from your current game.
-          </p>
-          <p id="report-error" class="report-error" role="status" aria-live="polite"></p>
+        <div class="word-detail-body">
+          <p id="word-detail-error" class="word-detail-error" role="status" aria-live="polite"></p>
         </div>
-        <div class="report-actions">
-          <button id="cancel-report-word" class="plain-button" type="button" data-close-modal>
-            Cancel
-          </button>
+        <div class="word-detail-actions">
+          <button id="lookup-definition" class="plain-button" type="button">Look up definition</button>
           <button id="confirm-report-word" class="submit-button" type="button">Report word</button>
         </div>
       </div>

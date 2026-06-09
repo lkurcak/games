@@ -9,7 +9,7 @@ import {
   getSortedMissedWords,
   isFirstLetterUnavailable,
 } from "./state.js";
-import { formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
+import { formatTime, formatWord, pluralize, wordUsesEveryLetter } from "./utils.js";
 
 const elements = {
   progressDialog: document.querySelector("#progress-dialog"),
@@ -27,16 +27,18 @@ const elements = {
   infoDialog: document.querySelector("#info-dialog"),
   victoryDialog: document.querySelector("#victory-dialog"),
   answersDialog: document.querySelector("#answers-dialog"),
-  reportDialog: document.querySelector("#report-dialog"),
-  reportWord: document.querySelector("#report-word"),
-  reportError: document.querySelector("#report-error"),
-  reportConfirm: document.querySelector("#confirm-report-word"),
+  wordDetailDialog: document.querySelector("#word-detail-dialog"),
+  wordDetailWord: document.querySelector("#word-detail-word"),
+  wordDetailError: document.querySelector("#word-detail-error"),
+  wordDetailReport: document.querySelector("#confirm-report-word"),
   answersProgressRing: document.querySelector("#answers-progress-ring"),
   foundCount: document.querySelector("#found-count"),
   recentWords: document.querySelector("#recent-words"),
   foundWords: document.querySelector("#found-words"),
   bonusFoundSection: document.querySelector("#bonus-found-section"),
   bonusFoundWords: document.querySelector("#bonus-found-words"),
+  victoryTime: document.querySelector("#victory-time"),
+  answersTime: document.querySelector("#answers-time"),
 };
 
 export function render(state, actions) {
@@ -47,13 +49,14 @@ export function render(state, actions) {
   renderMessage(state);
   renderFoundWords(state, actions);
   renderAnswersModal(state);
-  renderReportDialog(state);
+  renderWordDetailDialog(state);
+  renderTime(state);
   syncDialog(elements.progressDialog, state.activeModal === "progress");
   syncDialog(elements.foundDialog, state.activeModal === "found");
   syncDialog(elements.infoDialog, state.activeModal === "info");
   syncDialog(elements.victoryDialog, state.activeModal === "victory");
   syncDialog(elements.answersDialog, state.activeModal === "answers");
-  syncDialog(elements.reportDialog, state.activeModal === "report");
+  syncDialog(elements.wordDetailDialog, state.activeModal === "word-detail");
 }
 
 function renderProgress(state) {
@@ -221,7 +224,6 @@ function renderFoundWords(state, actions) {
     state.puzzle?.letters ?? "",
     state,
     actions,
-    true,
   );
   elements.foundWords.classList.toggle("hide-empty-message", bonusWords.length > 0);
   elements.bonusFoundSection.hidden = bonusWords.length === 0;
@@ -231,19 +233,18 @@ function renderFoundWords(state, actions) {
     state.puzzle?.letters ?? "",
     state,
     actions,
-    false,
   );
 }
 
-function renderWordList(element, words, letters, state, actions, allowReporting) {
+function renderWordList(element, words, letters, state, actions) {
   const rows = Math.max(1, Math.ceil(words.length / 2));
   element.style.gridTemplateRows = `repeat(${rows}, auto)`;
   element.replaceChildren(
-    ...words.map((word) => createWordItem(word, letters, state, actions, allowReporting)),
+    ...words.map((word) => createWordItem(word, letters, state, actions)),
   );
 }
 
-function createWordItem(entry, letters, state, actions, allowReporting) {
+function createWordItem(entry, letters, state, actions) {
   const { word, missed } = entry;
   const item = document.createElement("li");
   const text = document.createElement("span");
@@ -254,45 +255,11 @@ function createWordItem(entry, letters, state, actions, allowReporting) {
   item.classList.toggle("missed-word", missed);
   item.append(text);
 
-  if (allowReporting && state.answersRevealed) {
-    item.append(createReportButton(word, state, actions));
-  }
-
-  return item;
-}
-
-function createReportButton(word, state, actions) {
-  const button = document.createElement("button");
-  const reported = state.reportedWords.has(word);
-  const labelWord = formatWord(word);
-
-  button.className = "report-word-button";
-  button.type = "button";
-  button.disabled = reported || state.reportSubmitting;
-  button.title = reported ? "Already reported" : "Report word";
-  button.setAttribute(
-    "aria-label",
-    reported ? `${labelWord} already reported` : `Report ${labelWord}`,
-  );
-  button.append(createReportIcon());
-  button.addEventListener("click", (event) => {
-    event.stopPropagation();
-    actions.openReport(word);
+  item.addEventListener("click", () => {
+    actions.openWordDetail(word);
   });
 
-  return button;
-}
-
-function createReportIcon() {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("aria-hidden", "true");
-  path.setAttribute("d", "M6 20V5m0 0c4-2 7 2 12 0v10c-5 2-8-2-12 0");
-  svg.append(path);
-
-  return svg;
+  return item;
 }
 
 function renderAnswersModal(state) {
@@ -301,11 +268,17 @@ function renderAnswersModal(state) {
   elements.answersProgressRing.style.strokeDasharray = `${progress.percent} 100`;
 }
 
-function renderReportDialog(state) {
-  elements.reportWord.textContent = state.reportWord ? formatWord(state.reportWord) : "";
-  elements.reportError.textContent = state.reportError;
-  elements.reportConfirm.disabled = state.reportSubmitting;
-  elements.reportConfirm.textContent = state.reportSubmitting ? "Sending..." : "Report word";
+function renderWordDetailDialog(state) {
+  elements.wordDetailWord.textContent = state.reportWord ? formatWord(state.reportWord) : "";
+  elements.wordDetailError.textContent = state.reportError;
+  elements.wordDetailReport.disabled = state.reportSubmitting || state.reportedWords.has(state.reportWord);
+  elements.wordDetailReport.textContent = state.reportSubmitting ? "Sending..." : "Report word";
+}
+
+function renderTime(state) {
+  const time = state.elapsedMs > 0 ? formatTime(state.elapsedMs) : "";
+  elements.victoryTime.textContent = time;
+  elements.answersTime.textContent = time;
 }
 
 function createRecentWordNodes(entries, letters) {

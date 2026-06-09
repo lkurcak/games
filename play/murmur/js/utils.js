@@ -26,3 +26,14 @@ export function formatWord(word) {
 export function wordUsesEveryLetter(word, letters) {
   return [...new Set(letters)].every((letter) => word.includes(letter));
 }
+
+export function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const seconds = totalSeconds % 60;
+  const minutes = Math.floor(totalSeconds / 60) % 60;
+  const hours = Math.floor(totalSeconds / 3600);
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}

@@ -14,6 +14,8 @@ export function createState() {
     reportedWords: new Set(),
     victoryShown: false,
     answersRevealed: false,
+    startTime: 0,
+    elapsedMs: 0,
     message: "Loading dictionary...",
     messageKind: "",
   };
@@ -34,6 +36,8 @@ export function startPuzzle(state, puzzle) {
   state.reportedWords = new Set();
   state.victoryShown = false;
   state.answersRevealed = false;
+  state.startTime = 0;
+  state.elapsedMs = 0;
   state.message = "";
   state.messageKind = "";
 }
@@ -59,13 +63,19 @@ export function shuffleLetters(state) {
     return;
   }
 
-  const letters = [...state.puzzle.letters];
-  for (let index = letters.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [letters[index], letters[swapIndex]] = [letters[swapIndex], letters[index]];
-  }
+  const current = state.puzzle.letters;
+  const letters = [...current];
+  let shuffled;
 
-  state.puzzle = { ...state.puzzle, letters: letters.join("") };
+  do {
+    shuffled = [...letters];
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+  } while (shuffled.some((letter, index) => letter === letters[index]));
+
+  state.puzzle = { ...state.puzzle, letters: shuffled.join("") };
 }
 
 export function clearWord(state) {
@@ -102,14 +112,14 @@ export function revealAnswers(state, answers) {
   state.messageKind = "note";
 }
 
-export function openReport(state, word) {
-  if (!state.answersRevealed || state.reportedWords.has(word) || state.reportSubmitting) {
+export function openWordDetail(state, word) {
+  if (state.reportSubmitting) {
     return false;
   }
 
   state.reportWord = word;
   state.reportError = "";
-  state.activeModal = "report";
+  state.activeModal = "word-detail";
   return true;
 }
 

@@ -10,7 +10,7 @@ import {
   hasFoundWord,
   markFound,
   markReported,
-  openReport as openReportState,
+  openWordDetail as openWordDetailState,
   revealAnswers,
   setReportedWords,
   shuffleLetters,
@@ -63,9 +63,15 @@ const actions = {
   revealAnswers() {
     revealAllAnswers();
   },
-  openReport(word) {
-    if (openReportState(state, word)) {
+  openWordDetail(word) {
+    if (openWordDetailState(state, word)) {
       render(state, actions);
+    }
+  },
+  lookupDefinition() {
+    if (state.reportWord) {
+      const url = `https://www.google.com/search?q=definition+of+${encodeURIComponent(state.reportWord)}`;
+      window.open(url, "_blank");
     }
   },
   confirmReport() {
@@ -76,7 +82,7 @@ const actions = {
       return;
     }
 
-    if (state.activeModal === "report") {
+    if (state.activeModal === "word-detail") {
       clearReport(state);
       state.activeModal = "found";
       render(state, actions);
@@ -108,6 +114,7 @@ document.querySelector("#reveal-answers").addEventListener("click", actions.reve
 document.querySelector("#info-toggle").addEventListener("click", actions.openInfo);
 document.querySelector("#found-toggle").addEventListener("click", actions.openFound);
 document.querySelector("#confirm-report-word").addEventListener("click", actions.confirmReport);
+document.querySelector("#lookup-definition").addEventListener("click", actions.lookupDefinition);
 document.querySelector("#info-prev").addEventListener("click", () => scrollInfoSlide(-1));
 document.querySelector("#info-next").addEventListener("click", () => scrollInfoSlide(1));
 document.querySelectorAll("[data-close-modal]").forEach((button) => {
@@ -139,6 +146,7 @@ try {
   wasm = await import("../pkg/game_wasm.js");
   await wasm.default();
   startPuzzle(state, wasm.generate_puzzle());
+  state.startTime = Date.now();
   setReportedWords(state, loadReportedWords(state.puzzle.letters));
   refreshLetterStats();
 } catch (error) {
@@ -269,6 +277,7 @@ function revealAllAnswers() {
 
   const answers = wasm.get_answers(state.puzzle.letters);
   revealAnswers(state, Array.isArray(answers) ? answers : []);
+  state.elapsedMs = Date.now() - state.startTime;
   render(state, actions);
 }
 
@@ -333,6 +342,7 @@ function showVictoryIfComplete() {
   }
 
   state.victoryShown = true;
+  state.elapsedMs = Date.now() - state.startTime;
   state.activeModal = "victory";
 }
 
