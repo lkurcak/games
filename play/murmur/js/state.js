@@ -209,7 +209,7 @@ export function isLetterDone(state, letter) {
 }
 
 export function isFirstLetterUnavailable(state, letter) {
-  if (state.currentWord || getProgress(state).percent < 50) {
+  if (state.currentWord) {
     return false;
   }
 

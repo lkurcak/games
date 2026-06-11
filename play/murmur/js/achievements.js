@@ -247,6 +247,9 @@ export function evaluateInOrder(data, tracker, state) {
 
   const sortedLetters = [...new Set(state.puzzle.letters)].sort();
   const remaining = getRemainingByStart(state);
+  const totals = new Map(
+    (state.puzzle.byStart ?? []).map((entry) => [entry.letter, entry.total]),
+  );
 
   const completedLetters = new Set(
     sortedLetters.filter((letter) => (remaining.get(letter) ?? 0) === 0),
@@ -269,7 +272,8 @@ export function evaluateInOrder(data, tracker, state) {
   }
 
   for (let i = firstIncompleteIndex + 1; i < sortedLetters.length; i++) {
-    if (completedLetters.has(sortedLetters[i])) {
+    const letter = sortedLetters[i];
+    if ((totals.get(letter) ?? 0) > 0 && completedLetters.has(letter)) {
       tracker.alphaBroken = true;
       return [];
     }
